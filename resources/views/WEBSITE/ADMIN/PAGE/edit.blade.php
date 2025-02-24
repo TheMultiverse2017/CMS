@@ -4,14 +4,13 @@
     @php
         $allMenus = (new \App\Helpers\Helpers())->getAllMenus() ?? [];
         use App\Enums\WebsiteFilesBelongsTo;
-        $dateTimeToString = base64_encode(date("Y-m-d H:i:s", round(microtime(true) * 1000) / 1000));
     @endphp
     <div class="container">
         <div class="row justify-content-center py-5">
             <div class="col-md-12 ">
-                {{-- <form method="POST" action="{{ route('page.save') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('page.save') }}" enctype="multipart/form-data">
                     @csrf
-                    @method('POST') --}}
+                    @method('POST')
                     <div class="row">
                         <div class="col-md-6">
                             <div class="col-md-12 py-2">
@@ -22,7 +21,8 @@
                                         <option selected value="">Open this select menu</option>
                                         @if (!empty($allMenus))
                                             @forelse ($allMenus as $menu)
-                                                <option value="{{ $menu->id ?? null }}">
+                                                <option value="{{ $menu->id ?? null }}"
+                                                    @if ($menu->id == $page->menu) selected @endif>
                                                     {{ $menu->menu ?? null }}
                                                 </option>
 
@@ -41,7 +41,7 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="title" class="form-label">Title</label>
-                                        <input class="form-control" multiple name="title" type="text" id="title">
+                                        <input class="form-control" multiple name="title" value="{{$page->title ?? null}}" type="text" id="title">
                                     </div>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="title" class="form-label">META DESCRIPTION</label>
-                                        <textarea class="form-control" multiple name="metaDesc" id="metaDesc" cols="30" rows=""></textarea>
+                                        <textarea class="form-control" multiple name="metaDesc" id="metaDesc" cols="30" rows="">{!! $page->metaDesc!!}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="title" class="form-label">META TAGS</label>
-                                        <textarea class="form-control" multiple name="mentTags"id="mentTags" cols="30" rows=""></textarea>
+                                        <textarea class="form-control" multiple name="mentTags"id="mentTags" cols="30" rows="">{!! $page->metaTags!!}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -71,11 +71,7 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Content</label>
-                                    {{-- <textarea class="form-control" name="content" id="content" cols="100" rows="20"> --}}
-                                        <div class="htmlContent" id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
-                                        style="height: 100vh; width: auto; border: 2px solid ;" contenteditable="true" >
-                                        </div>
-                                    {{-- </textarea> --}}
+                                    <textarea class="form-control" name="content" id="content" cols="100" rows="20">{!! $page->content!!}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +80,7 @@
                         </div>
                     </div>
             </div>
-            {{-- </form> --}}
+            </form>
         </div>
     </div>
     </div>

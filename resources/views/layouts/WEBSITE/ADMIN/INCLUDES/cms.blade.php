@@ -65,19 +65,18 @@
 
         // Handle drop event
         $(".dropZone").on("drop", function(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            // Get the dropped content
-            let droppedContent = event.originalEvent.dataTransfer.getData("text").replace(/\s+/g, '_');
-            let htmlContent = getValue(droppedContent);
-            // Append the dropped content into the dropZone
-            $(this).append(`
-            ${htmlContent}
-        `);
+    let droppedContent = event.originalEvent.dataTransfer.getData("text").replace(/\s+/g, '_');
 
-            // Show an alert with the dropped content
-            alert("Content '" + droppedContent + "' dropped");
-        });
+    getValue(droppedContent).then(htmlContent => {
+        if (htmlContent) {
+            $(event.target).append(htmlContent);
+            console.log("Content '" + htmlContent + "' dropped");
+        }
+    }).catch(error => console.error("Error fetching content:", error));
+});
+
     });
     const notyf = new Notyf();
     var type = 'GET';
@@ -163,34 +162,26 @@
     }
 
     function getValue(key = null) {
-        route = "{{ route('page.get.value') }}";
+    return new Promise((resolve, reject) => {
+        let route = "{{ route('page.get.value') }}";
         $.ajax({
-            type: type,
+            type: "GET",
             url: route,
             data: { key: key },
             success: function(response) {
-                message = response.message;
                 if (response.success) {
-
-                    // let container = $("#Containers .accordion-body .row");
-                    // container.empty(); // Clear previous content
-
-                    // $.each(response.data, function(key, value) {
-                    //     // Append each HTML snippet as a new div
-                    //     container.append(`
-                    //     <div class="col-12 mb-3">
-                    //         <button class="btn btn-outline-secondary draggable" draggable="true" style="width:100%">` + key + `</button>
-                    //     </div>
-                    // `);
-                    // });
-                    notyf.success(message);
+                    notyf.success(response.message);
+                    resolve(response.data);
                 } else {
-                    notyf.success(message);
+                    notyf.success(response.message);
+                    resolve(null);
                 }
             },
-            error: function(xhr, status, error) {
-                notyf.error('Something went Wrong, Please try again');
+            error: function() {
+                notyf.error('Something went wrong, please try again');
+                reject('AJAX request failed');
             }
         });
-    }
+    });
+}
 </script>

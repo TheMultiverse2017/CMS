@@ -168,12 +168,16 @@ class Helpers
             'IFRAME' => '<iframe src="[[[my-iframe-src]]]" class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" width="100%"
                 height="400px" frameborder="0"></iframe>',
         ];
+       
         // $components = self::getComponentKeys($components);
         if ($key != null) {
             if (!empty($containers[$key])) {
                 $containers = $containers[$key];
+            }else{
+                return null;
             }
         }
+        
         return $containers;
     }
 
@@ -287,8 +291,13 @@ class Helpers
         ];
 
         // $components = self::getComponentKeys($components);
-        if (!empty($components[$key])) {
-            $components = $components[$key] ?? [];
+        if ($key != null) {
+            if (!empty($components[$key])) {
+                $components = $components[$key] ?? [];
+            }else{
+                return null;
+            }
+
         }
         return $components;
     }
@@ -495,8 +504,10 @@ class Helpers
         if ($key != null) {
             if (isset($classes[$key])) {
                 $classes = $classes[$key] ?? [];
+            }else{
+                return null;
             }
-            return $classes ??[];
+
         }
         return $classes;
     }

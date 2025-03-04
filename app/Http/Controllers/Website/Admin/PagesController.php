@@ -119,10 +119,13 @@ class PagesController extends Controller
                 $allClasses = (New Helpers())->allClasses($key);
                 $allComponents = (New Helpers())->allComponents($key);
                 $allContainers = (New Helpers())->allContainers($key);
-                dd($allClasses);
-                dd($allComponents);
-                dd($allContainers);
-
+                if($allClasses != null){
+                    $data = $allClasses ;
+                }else if($allComponents != null){
+                    $data = $allComponents;
+                }else if($allContainers != null){
+                    $data = $allContainers;
+                }
                 $data = $allClasses ?? $allComponents ?? $allContainers;
             }
             return response()->json(['success' => true, 'data' => $data]);

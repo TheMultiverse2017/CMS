@@ -8,6 +8,7 @@ use App\Enums\Status;
 use App\Enums\WebsiteFilesBelongsTo;
 use App\Enums\WebsiteFilesFor;
 use App\Enums\WebsiteFilesType;
+use App\Helpers\Helpers;
 use App\Models\Website\Admin\Banner;
 use App\Models\Website\Admin\Navigation;
 use App\Models\Website\Admin\Page;
@@ -80,5 +81,54 @@ class PagesController extends Controller
             return view('WEBSITE.ADMIN.PAGE.edit', compact('title','post'));
     }
 
+    function getContainers(){
+        $request = Request();
+        if ($request->ajax()) {
+            $data = (New Helpers())->allContainers();
+            return response()->json(['success' => true, 'data' => $data]);
+        }else {
+            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        }
+    }
 
+    function getComponents(){
+        $request = Request();
+        if ($request->ajax()) {
+            $data = (New Helpers())->allComponents();
+            return response()->json(['success' => true, 'data' => $data]);
+        }else {
+            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        }
+    }
+
+    function getClasses(){
+        $request = Request();
+        if ($request->ajax()) {
+            $data = (New Helpers())->allClasses();
+            return response()->json(['success' => true, 'data' => $data]);
+        }else {
+            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        }
+    }
+
+    function getValue(){
+        $request = Request();
+        $key = request()->input('key', null);
+        if ($request->ajax()) {
+            if(!empty($key)){
+                $allClasses = (New Helpers())->allClasses($key);
+                $allComponents = (New Helpers())->allComponents($key);
+                $allContainers = (New Helpers())->allContainers($key);
+                dd($allClasses);
+                dd($allComponents);
+                dd($allContainers);
+
+                $data = $allClasses ?? $allComponents ?? $allContainers;
+            }
+            return response()->json(['success' => true, 'data' => $data]);
+        }else {
+            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        }
+
+    }
 }

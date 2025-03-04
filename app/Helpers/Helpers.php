@@ -151,56 +151,64 @@ class Helpers
             session()->start();
         }
     }
+    function allContainers($key = null)
+    {
+        $containers = [
+            // Basic HTML Elements
+            'CONTAINER' => '<div class="container [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
+            'ROW' => '<div class="row [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
+            'COL' => '<div class="col [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
+            'PARAGRAPH' => '<p class="[[[my-custom-class]]]" id="[[[my-custom-id]]]">Your text here</p>',
+            'HEADING' => '<h1 class="h1 [[[my-custom-class]]]" id="[[[my-custom-id]]]">Heading Text</h1>',
+            'IMAGE' => '<img src="[[[my-image-src]]]" class="img-fluid [[[my-custom-class]]]" id="[[[my-custom-id]]]"
+                alt="[[[my-alt-text]]]">',
+            'VIDEO' => '<video class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" controls>
+                <source src="[[[my-video-src]]]" type="video/mp4">
+                Your browser does not support the video tag.</video>',
+            'IFRAME' => '<iframe src="[[[my-iframe-src]]]" class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" width="100%"
+                height="400px" frameborder="0"></iframe>',
+        ];
+        // $components = self::getComponentKeys($components);
+        if ($key != null) {
+            if (!empty($containers[$key])) {
+                $containers = $containers[$key];
+            }
+        }
+        return $containers;
+    }
 
     function allComponents($key = null)
     {
         $components = [
-            // Basic HTML Elements
-            'HTML' => [
-                'CONTAINER' => '<div class="container [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
-                'ROW' => '<div class="row [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
-                'COL' => '<div class="col [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
-                'PARAGRAPH' => '<p class="[[[my-custom-class]]]" id="[[[my-custom-id]]]">Your text here</p>',
-                'HEADING' => '<h1 class="h1 [[[my-custom-class]]]" id="[[[my-custom-id]]]">Heading Text</h1>',
-                'IMAGE' => '<img src="[[[my-image-src]]]" class="img-fluid [[[my-custom-class]]]" id="[[[my-custom-id]]]"
-                alt="[[[my-alt-text]]]">',
-                'VIDEO' => '<video class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" controls>
-                <source src="[[[my-video-src]]]" type="video/mp4">
-                Your browser does not support the video tag.</video>',
-                'IFRAME' => '<iframe src="[[[my-iframe-src]]]" class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" width="100%"
-                height="400px" frameborder="0"></iframe>',
-            ],
-
             // Bootstrap Components
-            'COMPONENTS' => [
-                'BUTTON' => '<button type="button" class="btn btn-primary [[[my-custom-class]]]" id="[[[my-custom-id]]]">Click
+            'BUTTON' => '<button type="button" class="btn btn-primary [[[my-custom-class]]]" id="[[[my-custom-id]]]">Click
                 Me</button>',
-                'BUTTON_GROUP' => '<div class="btn-group [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'BUTTON_GROUP' => '<div class="btn-group [[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <button type="button" class="btn btn-primary">Left</button>
                 <button type="button" class="btn btn-primary">Middle</button>
                 <button type="button" class="btn btn-primary">Right</button>
             </div>',
-                'INPUT' => '<input type="text" class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]"
+            'INPUT' => '<input type="text" class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]"
                 placeholder="Enter text">',
-                'TEXTAREA' => '<textarea class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]" rows="3"
+            'TEXTAREA' => '<textarea class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]" rows="3"
                 placeholder="Enter text"></textarea>',
-                'FILE' => '<input type="file" class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]">',
-                'SELECT' => '<select class="form-select [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'FILE' => '<input type="file" class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]">',
+            'SELECT' => '<select class="form-select [[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <option selected>Choose...</option>
                 <option value="1">Option 1</option>
                 <option value="2">Option 2</option>
                 <option value="3">Option 3</option>
             </select>',
-                'CHECKBOX' => '<div class="form-check">
+            'CHECKBOX' => '<div class="form-check">
                 <input class="form-check-input [[[my-custom-class]]]" type="checkbox" id="[[[my-custom-id]]]">
                 <label class="form-check-label" for="[[[my-custom-id]]]">Check me</label>
             </div>',
-                'RADIO' => '<div class="form-check">
+            'RADIO' => '<div class="form-check">
                 <input class="form-check-input [[[my-custom-class]]]" type="radio" name="exampleRadios" id="[[[my-custom-id]]]"
                     value="option1">
                 <label class="form-check-label" for="[[[my-custom-id]]]">Radio option</label>
             </div>',
-                'TABLE' => '<table class="table [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'TABLE' => '<table class="table [[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -218,10 +226,10 @@ class Helpers
                     </tr>
                 </tbody>
             </table>',
-                'ALERT' => '<div class="alert alert-warning [[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert">
+            'ALERT' => '<div class="alert alert-warning [[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert">
                 This is a warning alert—check it out!
             </div>',
-                'CARD' => '<div class="card [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'CARD' => '<div class="card [[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <img src="[[[my-image-src]]]" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Card title</h5>
@@ -229,7 +237,7 @@ class Helpers
                     <a href="#" class="btn btn-primary">Go somewhere</a>
                 </div>
             </div>',
-                'MODAL' => '<div class="modal fade [[[my-custom-class]]]" id="[[[my-custom-id]]]" tabindex="-1">
+            'MODAL' => '<div class="modal fade [[[my-custom-class]]]" id="[[[my-custom-id]]]" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -246,7 +254,7 @@ class Helpers
                     </div>
                 </div>
             </div>',
-                'TOAST' => '<div class="toast [[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert" data-bs-autohide="false">
+            'TOAST' => '<div class="toast [[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert" data-bs-autohide="false">
                 <div class="toast-header">
                     <strong class="me-auto">Bootstrap</strong>
                     <small>Just now</small>
@@ -256,7 +264,7 @@ class Helpers
                     See? Just like this.
                 </div>
             </div>',
-                'CAROUSEL' => '<div id="carouselExample" class="carousel slide [[[my-custom-class]]]" id="[[[my-custom-id]]]"
+            'CAROUSEL' => '<div id="carouselExample" class="carousel slide [[[my-custom-class]]]" id="[[[my-custom-id]]]"
                 data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
@@ -276,29 +284,18 @@ class Helpers
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 </button>
             </div>',
-            ],
         ];
 
-        $components = self::getComponentKeys($components);
-        if($key != null){
-
+        // $components = self::getComponentKeys($components);
+        if (!empty($components[$key])) {
+            $components = $components[$key] ?? [];
         }
         return $components;
     }
 
-    function allClasses($key) {
+    function allClasses($key = null)
+    {
         $classes = [
-            // Prefixes for Bootstrap classes
-            'PRE_FIX_BTN' => 'btn-',
-            'PRE_FIX_BG' => 'bg-',
-            'PRE_FIX_TEXT' => 'text-',
-            'PRE_FIX_BORDER' => 'border-',
-            'PRE_FIX_SHADOW' => 'shadow-',
-            'PRE_FIX_SPACING' => 'm- p-',
-            'PRE_FIX_DISPLAY' => 'd-',
-            'PRE_FIX_FLEX' => 'flex-',
-            'PRE_FIX_GRID' => 'g-',
-
             // Column Classes
             'COL_AUTO' => 'col-auto',
             'COL_1' => 'col-1',
@@ -313,6 +310,33 @@ class Helpers
             'COL_10' => 'col-10',
             'COL_11' => 'col-11',
             'COL_12' => 'col-12',
+            'COL_XS_AUTO' => 'col-xs-auto',
+            'COL_XS_1' => 'col-xs-1',
+            'COL_XS_2' => 'col-xs-2',
+            'COL_XS_3' => 'col-xs-3',
+            'COL_XS_4' => 'col-xs-4',
+            'COL_XS_5' => 'col-xs-5',
+            'COL_XS_6' => 'col-xs-6',
+            'COL_XS_7' => 'col-xs-7',
+            'COL_XS_8' => 'col-xs-8',
+            'COL_XS_9' => 'col-xs-9',
+            'COL_XS_10' => 'col-xs-10',
+            'COL_XS_11' => 'col-xs-11',
+            'COL_XS_12' => 'col-xs-12',
+            'COL_SM_AUTO' => 'col-sm-auto',
+            'COL_SM_1' => 'col-sm-1',
+            'COL_SM_2' => 'col-sm-2',
+            'COL_SM_3' => 'col-sm-3',
+            'COL_SM_4' => 'col-sm-4',
+            'COL_SM_5' => 'col-sm-5',
+            'COL_SM_6' => 'col-sm-6',
+            'COL_SM_7' => 'col-sm-7',
+            'COL_SM_8' => 'col-sm-8',
+            'COL_SM_9' => 'col-sm-9',
+            'COL_SM_10' => 'col-sm-10',
+            'COL_SM_11' => 'col-sm-11',
+            'COL_SM_12' => 'col-sm-12',
+            'COL_MD_AUTO' => 'col-md-auto',
             'COL_MD_1' => 'col-md-1',
             'COL_MD_2' => 'col-md-2',
             'COL_MD_3' => 'col-md-3',
@@ -325,6 +349,33 @@ class Helpers
             'COL_MD_10' => 'col-md-10',
             'COL_MD_11' => 'col-md-11',
             'COL_MD_12' => 'col-md-12',
+            'COL_LG_AUTO' => 'col-lg-auto',
+            'COL_LG_1' => 'col-LG-1',
+            'COL_LG_1' => 'col-lg-1',
+            'COL_LG_2' => 'col-lg-2',
+            'COL_LG_3' => 'col-lg-3',
+            'COL_LG_4' => 'col-lg-4',
+            'COL_LG_5' => 'col-lg-5',
+            'COL_LG_6' => 'col-lg-6',
+            'COL_LG_7' => 'col-lg-7',
+            'COL_LG_8' => 'col-lg-8',
+            'COL_LG_9' => 'col-lg-9',
+            'COL_LG_10' => 'col-lg-10',
+            'COL_LG_11' => 'col-lg-11',
+            'COL_LG_12' => 'col-lg-12',
+            'COL_XL_AUTO' => 'col-xl-auto',
+            'COL_XL_1' => 'col-xl-1',
+            'COL_XL_2' => 'col-xl-2',
+            'COL_XL_3' => 'col-xl-3',
+            'COL_XL_4' => 'col-xl-4',
+            'COL_XL_5' => 'col-xl-5',
+            'COL_XL_6' => 'col-xl-6',
+            'COL_XL_7' => 'col-xl-7',
+            'COL_XL_8' => 'col-xl-8',
+            'COL_XL_9' => 'col-xl-9',
+            'COL_XL_10' => 'col-xl-10',
+            'COL_XL_11' => 'col-xl-11',
+            'COL_XL_12' => 'col-xl-12',
 
             // Bootstrap Colors
             'PRIMARY' => 'primary',
@@ -441,15 +492,17 @@ class Helpers
             'FLOAT_END' => 'float-end',
             'FLOAT_NONE' => 'float-none',
         ];
-        if($key != null){
-
+        if ($key != null) {
+            if (isset($classes[$key])) {
+                $classes = $classes[$key] ?? [];
+            }
+            return $classes ??[];
         }
-
         return $classes;
-
     }
 
-    function getComponentKeys($components) {
+    function getComponentKeys($components)
+    {
         $keys = [];
         foreach ($components as $category => $items) {
             $keys = array_merge($keys, array_keys($items));

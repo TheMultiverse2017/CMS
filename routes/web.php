@@ -104,6 +104,11 @@ Route::prefix('website/admin')->controller(PagesController::class)->group(functi
     Route::post('/page/update/{id}', 'update')->name('page.update');
     Route::post('/page/{status}/{id}', 'status')->name('page.status');
     Route::delete('/page/delete/{id}', 'delete')->name('page.delete');
+    Route::get('/page/get/containers', 'getContainers')->name('page.get.containers');
+    Route::get('/page/get/components', 'getComponents')->name('page.get.components');
+    Route::get('/page/get/classes', 'getClasses')->name('page.get.classes');
+    Route::get('/page/get/value', 'getValue')->name('page.get.value');
+
 });
 
 Route::prefix('website/admin')->controller(WebsiteFilesController::class)->group(function () {

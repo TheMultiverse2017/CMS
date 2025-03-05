@@ -48,6 +48,8 @@
 
 <script>
     $(document).ready(function() {
+        let customClassCounter = 1; // Global counter to keep track of unique class names
+        fileUploadOnClick();
         getContainers();
         // getComponents();
         // getClasses();
@@ -65,17 +67,17 @@
 
         // Handle drop event
         $(".dropZone").on("drop", function(event) {
-    event.preventDefault();
+            event.preventDefault();
 
-    let droppedContent = event.originalEvent.dataTransfer.getData("text").replace(/\s+/g, '_');
+            let droppedContent = event.originalEvent.dataTransfer.getData("text").replace(/\s+/g, '_');
 
-    getValue(droppedContent).then(htmlContent => {
-        if (htmlContent) {
-            $(event.target).append(htmlContent);
-            console.log("Content '" + htmlContent + "' dropped");
-        }
-    }).catch(error => console.error("Error fetching content:", error));
-});
+            getValue(droppedContent).then(htmlContent => {
+                if (htmlContent) {
+                    $(event.target).append(htmlContent);
+                    console.log("Content '" + htmlContent + "' dropped");
+                }
+            }).catch(error => console.error("Error fetching content:", error));
+        });
 
     });
     const notyf = new Notyf();
@@ -161,27 +163,104 @@
         });
     }
 
+    let customClassCounter = 1; // Global counter to keep track of unique class names
+
     function getValue(key = null) {
-    return new Promise((resolve, reject) => {
-        let route = "{{ route('page.get.value') }}";
-        $.ajax({
-            type: "GET",
-            url: route,
-            data: { key: key },
-            success: function(response) {
-                if (response.success) {
-                    notyf.success(response.message);
-                    resolve(response.data);
-                } else {
-                    notyf.success(response.message);
-                    resolve(null);
+        return new Promise((resolve, reject) => {
+            let route = "{{ route('page.get.value') }}";
+            $.ajax({
+                type: "GET",
+                url: route,
+                data: {
+                    key: key
+                },
+                success: function(response) {
+                    if (response.success) {
+                        key = response.key; // Currently not in use but may be usable in future
+
+                        // Modify response.data to make it editable
+                        let editableContent = $('<div>').html(response
+                            .data); // Convert to jQuery object
+
+                        // Find and replace [[[my-custom-class]]] with unique class names
+                        editableContent.find('*').each(function() {
+                            let element = $(this);
+                            let classAttr = element.attr('class');
+                            if (classAttr && classAttr.includes('[[[my-custom-class]]]')) {
+                                let newClassName = `myCustomClass${customClassCounter++}`;
+                                element.attr('class', classAttr.replace(
+                                    /\[\[\[my-custom-class\]\]\]/g, newClassName));
+                            }
+                            element.attr('contenteditable',
+                                'true'); // Make all elements editable
+                        });
+
+                        resolve(editableContent.html()); // Return modified HTML
+                    } else {
+                        notyf.success(response.message);
+                        resolve(null);
+                    }
+                },
+                error: function() {
+                    notyf.error('Something went wrong, please try again');
+                    reject('AJAX request failed');
                 }
-            },
-            error: function() {
-                notyf.error('Something went wrong, please try again');
-                reject('AJAX request failed');
+            });
+        });
+    }
+
+    function fileUploadOnClick() {
+        // Handle clicks on images, videos, and iframes
+        $(document).on('click', '.adminUiImageClass, .adminUiVideoClass, .adminUiIframeClass', function() {
+            let element = $(this); // Get clicked element
+            let currentClass = element.attr('class').match(/myCustomClass\d+/); // Get unique class
+            let elementType = element.prop("tagName").toLowerCase(); // Get element type
+
+            if (elementType === "img") {
+                // For images, prompt file upload
+                let fileInput = $('<input type="file" accept="image/*">');
+                fileInput.trigger('click');
+                fileInput.on('change', function(event) {
+                    let file = event.target.files[0];
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = function(e) {
+                            element.attr('src', e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+            } else if (elementType === "video") {
+                // For videos, prompt file upload or URL input
+                let userChoice = prompt("Enter video URL or upload a file.");
+                if (userChoice) {
+                    element.find("source").attr("src", userChoice);
+                    element[0].load(); // Reload video
+                } else {
+                    let fileInput = $('<input type="file" accept="video/*">');
+                    fileInput.trigger('click');
+                    fileInput.on('change', function(event) {
+                        let file = event.target.files[0];
+                        if (file) {
+                            let reader = new FileReader();
+                            reader.onload = function(e) {
+                                element.find("source").attr("src", e.target.result);
+                                element[0].load(); // Reload video
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+            } else if (elementType === "iframe") {
+                // For iframes, prompt for URL
+                let newSrc = prompt("Enter new iframe URL:");
+                if (newSrc) {
+                    element.attr('src', newSrc);
+                }
             }
         });
-    });
-}
+
+    }
 </script>

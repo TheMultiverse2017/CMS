@@ -7,6 +7,7 @@ use App\Models\Website\Admin\Navigation;
 use Jenssegers\Agent\Agent;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
 
 class Helpers
 {
@@ -153,31 +154,37 @@ class Helpers
     }
     function allContainers($key = null)
     {
+        $defaultImagePath = URL::asset('/ASSETS/DEFAULT/defaultwide.jpg');
+        $commonStyle = 'style="width:auto; border: 1px solid grey;"';
+
         $containers = [
-            // Basic HTML Elements
-            'CONTAINER' => '<div class="container [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
-            'ROW' => '<div class="row [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
-            'COL' => '<div class="col [[[my-custom-class]]]" id="[[[my-custom-id]]]"></div>',
-            'PARAGRAPH' => '<p class="[[[my-custom-class]]]" id="[[[my-custom-id]]]">Your text here</p>',
-            'HEADING' => '<h1 class="h1 [[[my-custom-class]]]" id="[[[my-custom-id]]]">Heading Text</h1>',
-            'IMAGE' => '<img src="[[[my-image-src]]]" class="img-fluid [[[my-custom-class]]]" id="[[[my-custom-id]]]"
-                alt="[[[my-alt-text]]]">',
-            'VIDEO' => '<video class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" controls>
+            // Basic HTML Elements with contenteditable attribute
+            'CONTAINER' => '<div class="container [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Container</div>',
+            'ROW' => '<div class="row [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Row</div>',
+            'COL' => '<div class="col [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Column</div>',
+            'PARAGRAPH' => '<p class="[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Your text here</p>',
+            'HEADING' => '<h1 class="h1 [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Heading Text</h1>',
+            'IMAGE' => '<img src="' . $defaultImagePath . '" class="img-fluid [[[my-custom-class]]] adminUiImageClass draggable" draggable="true" id="[[[my-custom-id]]]" alt="[[[my-alt-text]]]">',
+
+            // For media elements, wrap them in a div with contenteditable
+            'VIDEO' => '<div contenteditable="true"><video class="[[[my-custom-class]]] adminUiVideoClass" id="[[[my-custom-id]]]" controls>
                 <source src="[[[my-video-src]]]" type="video/mp4">
-                Your browser does not support the video tag.</video>',
-            'IFRAME' => '<iframe src="[[[my-iframe-src]]]" class="[[[my-custom-class]]]" id="[[[my-custom-id]]]" width="100%"
-                height="400px" frameborder="0"></iframe>',
+                Your browser does not support the video tag.
+            </video></div>',
+
+            'IFRAME' => '<div contenteditable="true"><iframe src="[[[my-iframe-src]]] " class="[[[my-custom-class]]] adminUiIframeClass" id="[[[my-custom-id]]]" width="100%" height="400px" frameborder="0"></iframe></div>',
+
         ];
-       
+
         // $components = self::getComponentKeys($components);
         if ($key != null) {
             if (!empty($containers[$key])) {
                 $containers = $containers[$key];
-            }else{
+            } else {
                 return null;
             }
         }
-        
+
         return $containers;
     }
 
@@ -294,10 +301,9 @@ class Helpers
         if ($key != null) {
             if (!empty($components[$key])) {
                 $components = $components[$key] ?? [];
-            }else{
+            } else {
                 return null;
             }
-
         }
         return $components;
     }
@@ -504,10 +510,9 @@ class Helpers
         if ($key != null) {
             if (isset($classes[$key])) {
                 $classes = $classes[$key] ?? [];
-            }else{
+            } else {
                 return null;
             }
-
         }
         return $classes;
     }

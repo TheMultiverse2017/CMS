@@ -128,7 +128,7 @@ class PagesController extends Controller
                 }
                 $data = $allClasses ?? $allComponents ?? $allContainers;
             }
-            return response()->json(['success' => true, 'data' => $data]);
+            return response()->json(['success' => true, 'data' => $data, 'key' => $key]);
         }else {
             return response()->json(['success' => false, 'message' => 'Error.'], 500);
         }

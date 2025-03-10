@@ -159,20 +159,20 @@ class Helpers
 
         $containers = [
             // Basic HTML Elements with contenteditable attribute
-            'CONTAINER' => '<div class="container [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Container</div>',
-            'ROW' => '<div class="row [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Row</div>',
-            'COL' => '<div class="col [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Column</div>',
-            'PARAGRAPH' => '<p class="[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Your text here</p>',
-            'HEADING' => '<h1 class="h1 [[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Heading Text</h1>',
-            'IMAGE' => '<img src="' . $defaultImagePath . '" class="img-fluid [[[my-custom-class]]] adminUiImageClass draggable" draggable="true" id="[[[my-custom-id]]]" alt="[[[my-alt-text]]]">',
+            'CONTAINER' => '<div class="container commonClass [[[[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Container</div>',
+            'ROW' => '<div class="row commonClass [[[[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Row</div>',
+            'COL' => '<div class="col commonClass [[[[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Column</div>',
+            'PARAGRAPH' => '<p class="commonClass [[[[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Your text here</p>',
+            'HEADING' => '<h1 class="h1 commonClass [[[[[[my-custom-class]]] draggable" draggable="true" '.$commonStyle.' id="[[[my-custom-id]]]" contenteditable="true">Heading Text</h1>',
+            'IMAGE' => '<img src="' . $defaultImagePath . '" class="img-fluid commonClass [[[[[[my-custom-class]]] adminUiImageClass draggable" draggable="true" id="[[[my-custom-id]]]" alt="[[[my-alt-text]]]">',
 
             // For media elements, wrap them in a div with contenteditable
-            'VIDEO' => '<div contenteditable="true"><video class="[[[my-custom-class]]] adminUiVideoClass" id="[[[my-custom-id]]]" controls>
+            'VIDEO' => '<div contenteditable="true"><video class="commonClass [[[[[[my-custom-class]]] adminUiVideoClass" id="[[[my-custom-id]]]" controls>
                 <source src="[[[my-video-src]]]" type="video/mp4">
                 Your browser does not support the video tag.
             </video></div>',
 
-            'IFRAME' => '<div contenteditable="true"><iframe src="[[[my-iframe-src]]] " class="[[[my-custom-class]]] adminUiIframeClass" id="[[[my-custom-id]]]" width="100%" height="400px" frameborder="0"></iframe></div>',
+            'IFRAME' => '<div contenteditable="true"><iframe src="[[[my-iframe-src]]] " class="commonClass [[[[[[my-custom-class]]] adminUiIframeClass" id="[[[my-custom-id]]]" width="100%" height="400px" frameborder="0"></iframe></div>',
 
         ];
 
@@ -192,34 +192,34 @@ class Helpers
     {
         $components = [
             // Bootstrap Components
-            'BUTTON' => '<button type="button" class="btn btn-primary [[[my-custom-class]]]" id="[[[my-custom-id]]]">Click
+            'BUTTON' => '<button type="button" class="btn btn-primary commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]">Click
                 Me</button>',
-            'BUTTON_GROUP' => '<div class="btn-group [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'BUTTON_GROUP' => '<div class="btn-group commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <button type="button" class="btn btn-primary">Left</button>
                 <button type="button" class="btn btn-primary">Middle</button>
                 <button type="button" class="btn btn-primary">Right</button>
             </div>',
-            'INPUT' => '<input type="text" class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]"
+            'INPUT' => '<input type="text" class="form-control commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]"
                 placeholder="Enter text">',
-            'TEXTAREA' => '<textarea class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]" rows="3"
+            'TEXTAREA' => '<textarea class="form-control commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]" rows="3"
                 placeholder="Enter text"></textarea>',
-            'FILE' => '<input type="file" class="form-control [[[my-custom-class]]]" id="[[[my-custom-id]]]">',
-            'SELECT' => '<select class="form-select [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'FILE' => '<input type="file" class="form-control commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]">',
+            'SELECT' => '<select class="form-select commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <option selected>Choose...</option>
                 <option value="1">Option 1</option>
                 <option value="2">Option 2</option>
                 <option value="3">Option 3</option>
             </select>',
             'CHECKBOX' => '<div class="form-check">
-                <input class="form-check-input [[[my-custom-class]]]" type="checkbox" id="[[[my-custom-id]]]">
+                <input class="form-check-input commonClass [[[[[[my-custom-class]]]" type="checkbox" id="[[[my-custom-id]]]">
                 <label class="form-check-label" for="[[[my-custom-id]]]">Check me</label>
             </div>',
             'RADIO' => '<div class="form-check">
-                <input class="form-check-input [[[my-custom-class]]]" type="radio" name="exampleRadios" id="[[[my-custom-id]]]"
+                <input class="form-check-input commonClass [[[[[[my-custom-class]]]" type="radio" name="exampleRadios" id="[[[my-custom-id]]]"
                     value="option1">
                 <label class="form-check-label" for="[[[my-custom-id]]]">Radio option</label>
             </div>',
-            'TABLE' => '<table class="table [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'TABLE' => '<table class="table commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -237,10 +237,10 @@ class Helpers
                     </tr>
                 </tbody>
             </table>',
-            'ALERT' => '<div class="alert alert-warning [[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert">
+            'ALERT' => '<div class="alert alert-warning commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert">
                 This is a warning alert—check it out!
             </div>',
-            'CARD' => '<div class="card [[[my-custom-class]]]" id="[[[my-custom-id]]]">
+            'CARD' => '<div class="card commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]">
                 <img src="[[[my-image-src]]]" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Card title</h5>
@@ -248,7 +248,7 @@ class Helpers
                     <a href="#" class="btn btn-primary">Go somewhere</a>
                 </div>
             </div>',
-            'MODAL' => '<div class="modal fade [[[my-custom-class]]]" id="[[[my-custom-id]]]" tabindex="-1">
+            'MODAL' => '<div class="modal fade commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -265,7 +265,7 @@ class Helpers
                     </div>
                 </div>
             </div>',
-            'TOAST' => '<div class="toast [[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert" data-bs-autohide="false">
+            'TOAST' => '<div class="toast commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]" role="alert" data-bs-autohide="false">
                 <div class="toast-header">
                     <strong class="me-auto">Bootstrap</strong>
                     <small>Just now</small>
@@ -275,7 +275,7 @@ class Helpers
                     See? Just like this.
                 </div>
             </div>',
-            'CAROUSEL' => '<div id="carouselExample" class="carousel slide [[[my-custom-class]]]" id="[[[my-custom-id]]]"
+            'CAROUSEL' => '<div id="carouselExample" class="carousel slide commonClass [[[[[[my-custom-class]]]" id="[[[my-custom-id]]]"
                 data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active">

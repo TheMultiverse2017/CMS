@@ -1,3 +1,9 @@
+<style>
+    .commonClass:hover {
+        background-color: grey;
+        cursor: crosshair !important;
+    }
+</style>
 <div class="htmlContent row" id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
     style="height: 100vh; width: auto; border: 2px solid ;">
     <div class="htmlComponents col-md-3"
@@ -47,8 +53,9 @@
 
 
 <script>
+    var customClassCounter = 1; // Global counter to keep track of unique class names
+
     $(document).ready(function() {
-        let customClassCounter = 1; // Global counter to keep track of unique class names
         fileUploadOnClick();
         getContainers();
         // getComponents();
@@ -163,8 +170,6 @@
         });
     }
 
-    let customClassCounter = 1; // Global counter to keep track of unique class names
-
     function getValue(key = null) {
         return new Promise((resolve, reject) => {
             let route = "{{ route('page.get.value') }}";
@@ -219,48 +224,39 @@
             if (elementType === "img") {
                 // For images, prompt file upload
                 let fileInput = $('<input type="file" accept="image/*">');
-                fileInput.trigger('click');
                 fileInput.on('change', function(event) {
                     let file = event.target.files[0];
                     if (file) {
                         let reader = new FileReader();
                         reader.onload = function(e) {
-                            element.attr('src', e.target.result);
+                            element.attr("src", e.target.result);
                         };
                         reader.readAsDataURL(file);
                     }
                 });
-
+                fileInput.trigger('click');
             } else if (elementType === "video") {
-                // For videos, prompt file upload or URL input
-                let userChoice = prompt("Enter video URL or upload a file.");
-                if (userChoice) {
-                    element.find("source").attr("src", userChoice);
-                    element[0].load(); // Reload video
-                } else {
-                    let fileInput = $('<input type="file" accept="video/*">');
-                    fileInput.trigger('click');
-                    fileInput.on('change', function(event) {
-                        let file = event.target.files[0];
-                        if (file) {
-                            let reader = new FileReader();
-                            reader.onload = function(e) {
-                                element.find("source").attr("src", e.target.result);
-                                element[0].load(); // Reload video
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                }
-
+                // For videos, prompt file upload
+                let fileInput = $('<input type="file" accept="video/*">');
+                fileInput.on('change', function(event) {
+                    let file = event.target.files[0];
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = function(e) {
+                            element.find("source").attr("src", e.target.result);
+                            element[0].load(); // Reload video
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+                fileInput.trigger('click');
             } else if (elementType === "iframe") {
-                // For iframes, prompt for URL
+                // For iframes, prompt for a new URL
                 let newSrc = prompt("Enter new iframe URL:");
                 if (newSrc) {
                     element.attr('src', newSrc);
                 }
             }
         });
-
     }
 </script>

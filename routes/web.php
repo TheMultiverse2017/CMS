@@ -107,6 +107,7 @@ Route::prefix('website/admin')->controller(PagesController::class)->group(functi
     Route::get('/page/get/containers', 'getContainers')->name('page.get.containers');
     Route::get('/page/get/components', 'getComponents')->name('page.get.components');
     Route::get('/page/get/classes', 'getClasses')->name('page.get.classes');
+    Route::get('/page/get/styles', 'getComponentStyle')->name('page.get.componentStyle');
     Route::get('/page/get/value', 'getValue')->name('page.get.value');
 
 });

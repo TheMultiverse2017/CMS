@@ -111,6 +111,16 @@ class PagesController extends Controller
         }
     }
 
+    function getComponentStyle(){
+        $request = Request();
+        if ($request->ajax()) {
+            $data = (New Helpers())->getComponentStyle();
+            return response()->json(['success' => true, 'data' => $data]);
+        }else {
+            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        }
+    }
+
     function getValue(){
         $request = Request();
         $key = request()->input('key', null);

@@ -6,7 +6,7 @@
 </style>
 <div class="htmlContent row" id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
     style="height: 100vh; width: auto; border: 2px solid ;">
-    <div class="htmlComponents col-md-3"
+    <div class="htmlComponents col-md-2"
         id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
         style="height: 100%;border: 2px solid ;">
         <div class="accordion pt-3" id="htmlContent">
@@ -42,9 +42,12 @@
             </div>
         </div>
     </div>
-    <div class="htmlContainer col-md-9 dropZone"
+    <div class="htmlContainer col-md-8 dropZone"
         id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
         style="height: 100%; border: 2px solid ;" contenteditable="true">
+    </div>
+    <div class="htmlComponentStyle col-md-2">
+
     </div>
 </div>
 </div>

@@ -526,9 +526,10 @@ class Helpers
         return $keys;
     }
 
-    function getComponentStyle()
+    function getComponentStyle($key = null)
     {
-        return [
+        $styles = [];
+        $styles = [
             'CONTAINER' => [
                 "width",
                 "height",
@@ -803,5 +804,13 @@ class Helpers
                 ]
             ]
         ];
+        if ($key != null) {
+            if (!empty($styles[$key])) {
+                $styles = $styles[$key];
+            } else {
+                return null;
+            }
+        }
+        return $styles ?? [];
     }
 }

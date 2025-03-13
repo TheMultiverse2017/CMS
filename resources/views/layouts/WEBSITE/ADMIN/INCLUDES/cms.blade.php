@@ -63,6 +63,7 @@
         getContainers();
         // getComponents();
         // getClasses();
+        getComponentStyle('CONTAINER');
 
 
         // Enable dragging
@@ -162,6 +163,42 @@
             success: function(response) {
                 message = response.message;
                 if (response.success) {
+                    notyf.success(message);
+                } else {
+                    notyf.success(message);
+                }
+            },
+            error: function(xhr, status, error) {
+                notyf.error('Something went Wrong, Please try again');
+            }
+        });
+    }
+
+    function getComponentStyle(key = null) {
+        route = "{{ route('page.get.componentStyle') }}";
+        $.ajax({
+            type: type,
+            url: route,
+            data: {
+                key: key
+            },
+            success: function(response) {
+                message = response.message;
+                if (response.success) {
+                    console.log(response);
+
+                    // let container = $("#Containers .accordion-body .row");
+                    // container.empty(); // Clear previous content
+
+                    // $.each(response.data, function(key, value) {
+                    //     // Append each HTML snippet as a new div
+                    //     container.append(`
+                    //     <div class="col-12 mb-3">
+                    //         <button class="btn btn-outline-secondary draggable" draggable="true" style="width:100%">` +
+                    //         key + `</button>
+                    //     </div>
+                    // `);
+                    // });
                     notyf.success(message);
                 } else {
                     notyf.success(message);

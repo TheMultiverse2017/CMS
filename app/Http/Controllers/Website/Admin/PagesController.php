@@ -30,7 +30,7 @@ class PagesController extends Controller
     {
         $request = Request();
         if ($request->ajax()) {
-            $banners = Banner::select(['id', 'title','menu', 'updated_at', 'status'])->orderBy('updated_at', 'desc')->get();
+            $banners = Banner::select(['id', 'title', 'menu', 'updated_at', 'status'])->orderBy('updated_at', 'desc')->get();
             return datatables()->of($banners)
                 ->addIndexColumn() // Adds SL No.
                 ->addColumn('updated_at', function ($banner) {
@@ -61,7 +61,7 @@ class PagesController extends Controller
                     $deleteButton = '<button style="width:100%" data-bs-toggle="modal" data-bs-target="#btnDeleteModal" data-status="delete" data-id="' . $banner->id . '" type="button" class="mx-2 col btn btn-danger btnDeleteModal "><i class="bi bi-archive-fill nav-icon"></i></button>';
                     return $deleteButton;
                 })
-                ->rawColumns(['menu','status', 'action', 'delete']) // Render HTML in these columns
+                ->rawColumns(['menu', 'status', 'action', 'delete']) // Render HTML in these columns
                 ->make(true);
         }
 
@@ -71,77 +71,85 @@ class PagesController extends Controller
 
     public function create()
     {
-            $title = 'Create';
-            return view('WEBSITE.ADMIN.PAGE.create', compact('title'));
+        $title = 'Create';
+        return view('WEBSITE.ADMIN.PAGE.create', compact('title'));
     }
     public function edit($id)
     {
-            $post = Page::where('id', $id)->first();
-            $title = 'Edit '.$post->title;
-            return view('WEBSITE.ADMIN.PAGE.edit', compact('title','post'));
+        $post = Page::where('id', $id)->first();
+        $title = 'Edit ' . $post->title;
+        return view('WEBSITE.ADMIN.PAGE.edit', compact('title', 'post'));
     }
 
-    function getContainers(){
+    function getContainers()
+    {
         $request = Request();
         if ($request->ajax()) {
-            $data = (New Helpers())->allContainers();
+            $data = (new Helpers())->allContainers();
             return response()->json(['success' => true, 'data' => $data]);
-        }else {
+        } else {
             return response()->json(['success' => false, 'message' => 'Error.'], 500);
         }
     }
 
-    function getComponents(){
+    function getComponents()
+    {
         $request = Request();
         if ($request->ajax()) {
-            $data = (New Helpers())->allComponents();
+            $data = (new Helpers())->allComponents();
             return response()->json(['success' => true, 'data' => $data]);
-        }else {
+        } else {
             return response()->json(['success' => false, 'message' => 'Error.'], 500);
         }
     }
 
-    function getClasses(){
+    function getClasses()
+    {
         $request = Request();
         if ($request->ajax()) {
-            $data = (New Helpers())->allClasses();
+            $data = (new Helpers())->allClasses();
             return response()->json(['success' => true, 'data' => $data]);
-        }else {
+        } else {
             return response()->json(['success' => false, 'message' => 'Error.'], 500);
         }
     }
 
-    function getComponentStyle(){
-        $request = Request();
-        if ($request->ajax()) {
-            $data = (New Helpers())->getComponentStyle();
-            return response()->json(['success' => true, 'data' => $data]);
-        }else {
-            return response()->json(['success' => false, 'message' => 'Error.'], 500);
-        }
-    }
-
-    function getValue(){
+    function getComponentStyle()
+    {
         $request = Request();
         $key = request()->input('key', null);
         if ($request->ajax()) {
-            if(!empty($key)){
-                $allClasses = (New Helpers())->allClasses($key);
-                $allComponents = (New Helpers())->allComponents($key);
-                $allContainers = (New Helpers())->allContainers($key);
-                if($allClasses != null){
-                    $data = $allClasses ;
-                }else if($allComponents != null){
+            if (!empty($key)) {
+                $allStyles = (new Helpers())->getComponentStyle($key);
+                $data = $allStyles;
+            }
+            return response()->json(['success' => true, 'data' => $data, 'key' => $key]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        }
+    }
+
+    function getValue()
+    {
+        $request = Request();
+        $key = request()->input('key', null);
+        if ($request->ajax()) {
+            if (!empty($key)) {
+                $allClasses = (new Helpers())->allClasses($key);
+                $allComponents = (new Helpers())->allComponents($key);
+                $allContainers = (new Helpers())->allContainers($key);
+                if ($allClasses != null) {
+                    $data = $allClasses;
+                } else if ($allComponents != null) {
                     $data = $allComponents;
-                }else if($allContainers != null){
+                } else if ($allContainers != null) {
                     $data = $allContainers;
                 }
                 $data = $allClasses ?? $allComponents ?? $allContainers;
             }
             return response()->json(['success' => true, 'data' => $data, 'key' => $key]);
-        }else {
+        } else {
             return response()->json(['success' => false, 'message' => 'Error.'], 500);
         }
-
     }
 }

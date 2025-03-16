@@ -1,3 +1,6 @@
+@php
+    $allFonts = (new \App\Helpers\Helpers())->getFonts() ?? [];
+@endphp
 <style>
     .commonClass:hover {
         background-color: grey;
@@ -5,7 +8,7 @@
     }
 </style>
 <div class="htmlContent row" id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
-    style="height: 100vh; width: auto; border: 2px solid ;">
+    style="height: 100vh; overflow-y: scroll; width: auto; border: 2px solid ;">
     <div class="htmlComponents col-md-2"
         id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
         style="height: 100%;border: 2px solid ;">
@@ -46,7 +49,7 @@
         id="{{ base64_encode(str_replace(['+', '/', '='], ['-', '_', ''], date('Y-m-d H:i:s'))) }}"
         style="height: 100%; border: 2px solid ;" contenteditable="true">
     </div>
-    <div class="htmlComponentStyle col-md-2">
+    <div class="htmlComponentStyle col-md-2" style="height: 100vh; overflow-y: scroll">
 
     </div>
 </div>
@@ -57,14 +60,15 @@
 
 <script>
     var customClassCounter = 1; // Global counter to keep track of unique class names
-
+    var dataElement = '';
+    var dataElementComponent = '';
+    let fonts = @json($allFonts); // Convert PHP array to JavaScript array
     $(document).ready(function() {
         fileUploadOnClick();
         getContainers();
         // getComponents();
         // getClasses();
-        getComponentStyle('CONTAINER');
-
+        // Call this function once when initializing to attach the
 
         // Enable dragging
         $(document).on("dragstart", ".draggable", function(event) {
@@ -175,40 +179,133 @@
     }
 
     function getComponentStyle(key = null) {
-        route = "{{ route('page.get.componentStyle') }}";
+        let route = "{{ route('page.get.componentStyle') }}";
+
+        // Clear container before making AJAX call
+        let container = document.querySelector(".htmlComponentStyle");
+        container.innerHTML = "";
+
         $.ajax({
-            type: type,
+            type: "GET",
             url: route,
             data: {
                 key: key
             },
             success: function(response) {
-                message = response.message;
+                let message = response.message;
                 if (response.success) {
-                    console.log(response);
-
-                    // let container = $("#Containers .accordion-body .row");
-                    // container.empty(); // Clear previous content
-
-                    // $.each(response.data, function(key, value) {
-                    //     // Append each HTML snippet as a new div
-                    //     container.append(`
-                    //     <div class="col-12 mb-3">
-                    //         <button class="btn btn-outline-secondary draggable" draggable="true" style="width:100%">` +
-                    //         key + `</button>
-                    //     </div>
-                    // `);
-                    // });
+                    console.log(response.data);
+                    renderComponentStyle(response.data, key, fonts);
                     notyf.success(message);
                 } else {
-                    notyf.success(message);
+                    notyf.error(message);
                 }
             },
             error: function(xhr, status, error) {
-                notyf.error('Something went Wrong, Please try again');
+                notyf.error("Something went wrong, please try again");
             }
         });
     }
+
+    function renderComponentStyle(properties, key, fonts = []) {
+        dataElement = dataElementComponent = '';
+        let container = document.querySelector(".htmlComponentStyle");
+        container.innerHTML = ""; // Clear previous content
+
+        let element = document.querySelector(".htmlContainer")?.querySelector(`[data-element="${dataElement}"]`) ||
+            document.querySelector(".htmlContainer .selected");
+
+        if (!dataElement) {
+            dataElement = element?.getAttribute("data-element") || null;
+        }
+
+        if (!dataElementComponent) {
+            dataElementComponent = element?.getAttribute("data-element-component") || null;
+        }
+
+        properties.forEach(property => {
+            const formGroup = document.createElement("div");
+            formGroup.classList.add("form-group", "my-2", "htmlStyleInputDiv");
+
+            const label = document.createElement("label");
+            label.textContent = property.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+            label.setAttribute("for", property);
+
+            let input;
+
+            // Handle font-family as a select box
+            if (property === "font-family") {
+                input = document.createElement("select");
+                input.setAttribute("name", property);
+                input.setAttribute("id", property);
+                input.classList.add("form-control", "htmlStyleInput");
+
+                // Populate with fonts
+                fonts.forEach(font => {
+                    let option = document.createElement("option");
+                    option.value = font;
+                    option.textContent = font;
+                    option.style.fontFamily = font; // Preview the font
+                    input.appendChild(option);
+                });
+
+            } else if (property === "src" && (key === "IMAGE" || key === "VIDEO")) {
+                input = document.createElement("input");
+                input.setAttribute("type", "file");
+                input.setAttribute("accept", key === "IMAGE" ? "image/*" : "video/*");
+                input.setAttribute("name", property);
+                input.setAttribute("id", property);
+                input.classList.add("form-control", "htmlStyleInput");
+
+                input.addEventListener("change", function(event) {
+                    const file = event.target.files[0];
+                    let selectedElement = document.querySelector(".htmlContainer .selected");
+
+                    if (file && selectedElement) {
+                        let reader = new FileReader();
+                        reader.onload = function(e) {
+                            selectedElement.setAttribute("src", e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            } else {
+                input = document.createElement("input");
+                input.setAttribute("type", getInputType(property));
+                input.setAttribute("name", property);
+                input.setAttribute("id", property);
+                input.classList.add("form-control", "htmlStyleInput");
+            }
+
+            formGroup.appendChild(label);
+            formGroup.appendChild(input);
+            container.appendChild(formGroup);
+        });
+
+        // Create and append delete button
+        if (element) {
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.classList.add("btn", "btn-danger", "deleteBtn", "mt-3", "htmlStyleInput");
+
+            // Style the button (optional)
+            Object.assign(deleteButton.style, {
+                width: "100%",
+                padding: "10px",
+                fontSize: "16px",
+                cursor: "pointer"
+            });
+            container.appendChild(deleteButton);
+        }
+    }
+
+    function getInputType(property) {
+        if (property.includes("color") || property === "background") return "color";
+        if (property.includes("width") || property.includes("height") || property.includes("size") || property.includes(
+                "radius") || property.includes("gap")) return "number";
+        return "text";
+    }
+
 
     function getValue(key = null) {
         return new Promise((resolve, reject) => {
@@ -226,21 +323,35 @@
                         // Modify response.data to make it editable
                         let editableContent = $('<div>').html(response
                             .data); // Convert to jQuery object
-
+                        // Remove 'selected' class from all other elements
+                        $('.htmlContainer *').removeClass('selected');
                         // Find and replace [[[my-custom-class]]] with unique class names
                         editableContent.find('*').each(function() {
                             let element = $(this);
                             let classAttr = element.attr('class');
                             if (classAttr && classAttr.includes('[[[my-custom-class]]]')) {
-                                let newClassName = `myCustomClass${customClassCounter++}`;
+                                let newClassName =
+                                    `myCustomClass${customClassCounter++} selected`;
                                 element.attr('class', classAttr.replace(
                                     /\[\[\[my-custom-class\]\]\]/g, newClassName));
+                                // Add data-element attribute with key and counter
+                                element.attr('data-element',
+                                    `${key}-${customClassCounter-1}`);
+                                element.attr('data-element-component',
+                                    `${key}`);
                             }
                             element.attr('contenteditable',
                                 'true'); // Make all elements editable
+
+                            // Apply width: auto; for IMAGE, VIDEO, or IFRAME elements
+                            if (["IMAGE", "VIDEO", "IFRAME"].includes(key)) {
+                                element.css("width", "100%");
+                            }
                         });
 
                         resolve(editableContent.html()); // Return modified HTML
+                        getComponentStyle(key);
+
                     } else {
                         notyf.success(response.message);
                         resolve(null);
@@ -256,7 +367,9 @@
 
     function fileUploadOnClick() {
         // Handle clicks on images, videos, and iframes
-        $(document).on('click', '.adminUiImageClass, .adminUiVideoClass, .adminUiIframeClass', function() {
+        // implement for right click :contextmenu
+        //fo double click : dblclick
+        $(document).on('dblclick', '.adminUiImageClass, .adminUiVideoClass, .adminUiIframeClass', function() {
             let element = $(this); // Get clicked element
             let currentClass = element.attr('class').match(/myCustomClass\d+/); // Get unique class
             let elementType = element.prop("tagName").toLowerCase(); // Get element type
@@ -299,4 +412,56 @@
             }
         });
     }
+    $(document).on('click', '.htmlContainer *', function(event) {
+        event.stopPropagation(); // Prevent event bubbling
+
+        // Remove 'selected' class from all elements before adding it to the clicked one
+        $('.htmlContainer *').removeClass('selected');
+        $(this).addClass('selected');
+        // Get data-element-component as key
+        let key = $(this).attr("data-element-component");
+
+        if (key) {
+            getComponentStyle(key);
+        }
+    });
+
+    // CSS to highlight the selected element
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .selected {
+        outline: 2px solid red !important; /* Highlight selected element */
+        box-shadow: 0 0 5px red !important; /* Optional glow effect */
+    }
+`;
+    document.head.appendChild(style);
+
+    $(document).on("click", ".deleteBtn", function(event) {
+        event.preventDefault(); // Prevent any default action (if inside a form)
+
+        let selectedElement = document.querySelector(".htmlContainer .selected");
+
+        if (selectedElement) {
+            selectedElement.remove(); // Remove the selected element from DOM
+            let container = document.querySelector(".htmlComponentStyle");
+            container.innerHTML = ""; // Clear previous content
+        }
+    });
+
+    document.addEventListener("input", function(event) {
+        if (event.target.classList.contains("htmlStyleInput")) {
+            let selectedElement = document.querySelector(".htmlContainer .selected");
+
+            if (selectedElement) {
+                let propertyName = event.target.getAttribute("name"); // Get the property name (e.g., width)
+                let propertyValue = event.target.value.trim(); // Get the value
+
+                if (propertyValue) {
+                    selectedElement.style[propertyName] = propertyValue + (isNaN(propertyValue) ? "" : "px");
+                } else {
+                    selectedElement.style.removeProperty(propertyName); // Remove property if empty
+                }
+            }
+        }
+    });
 </script>

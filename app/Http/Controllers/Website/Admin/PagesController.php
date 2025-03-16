@@ -74,6 +74,37 @@ class PagesController extends Controller
         $title = 'Create';
         return view('WEBSITE.ADMIN.PAGE.create', compact('title'));
     }
+
+    public function continue()
+    {
+        $title = 'Create - Continue';
+        $validator = Validator::make(request()->all(), [
+            'title' => ['string', 'max:255'],
+            'menu' => ['string', 'max:255'],
+            'metaDesc' => ['nullable'],
+            'metaTags' => ['nullable'],
+        ], [
+            'title.string' => 'Title must be a string.',
+            'title.max' => 'Title cannot exceed 255 characters.',
+            'menu.required' => 'Menu is a required field.',
+            'menu.string' => 'Menu must be a string.',
+            'menu.max' => 'Menu cannot exceed 255 characters.',
+        ]);
+        if ($validator->fails()) {
+            foreach ($validator->errors()->all() as $error) {
+                notyf()->warning($error);
+            }
+            return redirect()->back()->withInput();
+        }
+
+        $data = $validator->validated();
+        $menu =  $data['menu'];
+        $pageTitle =  $data['title'] ?? null;
+        $metaDesc =  $data['metaDesc'] ?? null;
+        $metaTags =  $data['metaTags'] ?? null;
+        return view('WEBSITE.ADMIN.PAGE.continue', compact('title','menu','pageTitle','metaDesc','metaTags'));
+    }
+
     public function edit($id)
     {
         $post = Page::where('id', $id)->first();
@@ -152,4 +183,5 @@ class PagesController extends Controller
             return response()->json(['success' => false, 'message' => 'Error.'], 500);
         }
     }
+
 }

@@ -99,6 +99,7 @@ Route::prefix('website/admin')->controller(GalleryController::class)->group(func
 Route::prefix('website/admin')->controller(PagesController::class)->group(function () {
     Route::get('/page/index', 'index')->name('page.index');
     Route::get('/page/create', 'create')->name('page.create');
+    Route::post('/page/continue', 'continue')->name('page.continue');
     Route::post('/page/save', 'save')->name('page.save');
     Route::get('/page/edit/{id}', 'edit')->name('page.edit');
     Route::post('/page/update/{id}', 'update')->name('page.update');

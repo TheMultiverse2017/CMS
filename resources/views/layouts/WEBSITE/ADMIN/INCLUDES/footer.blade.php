@@ -157,29 +157,29 @@
                             // Render response data to the form
                             document.querySelector(`${fromID} .menu`).style.display = 'block'; // Show #menu
                             document.querySelector(`${fromID} #menudropdown`).style.display =
-                            'block'; // Show #menudropdown
+                                'block'; // Show #menudropdown
                             document.querySelector(`${fromID} .submenu`).style.display =
-                            'block'; // Show #submenu
+                                'block'; // Show #submenu
 
                             var mainMenu = data.mainMenu;
 
                             if (mainMenu) {
                                 document.querySelector(`${fromID} .menu`).style.display =
-                                'block'; // Show #menu
+                                    'block'; // Show #menu
                                 document.querySelector(`${fromID} #menudropdown`).style.display =
-                                'none'; // Hide #menudropdown
+                                    'none'; // Hide #menudropdown
                                 document.querySelector(`${fromID} .submenu`).style.display =
-                                'none'; // Hide #submenu
+                                    'none'; // Hide #submenu
                                 $(`${fromID} #menu`).val(data.navigationMenus.menu ?? '');
                                 $(`${fromID} #footer`).prop('checked', data.navigationMenus.footer ??
-                                false);
+                                    false);
                             } else {
                                 document.querySelector(`${fromID} .menu`).style.display =
-                                'none'; // Hide #menu
+                                    'none'; // Hide #menu
                                 document.querySelector(`${fromID} #menudropdown`).style.display =
-                                'block'; // Show #menudropdown
+                                    'block'; // Show #menudropdown
                                 document.querySelector(`${fromID} .submenu`).style.display =
-                                'block'; // Show #submenu
+                                    'block'; // Show #submenu
                                 $(`${fromID} #menudropdown`).val(data.navigationMenus.id ?? '');
                                 $(`${fromID} #menudropdown`).find(
                                     `option[value="${data.navigationMenus.id}"]`).text(data
@@ -303,6 +303,13 @@
     }
 
     function initializeSummernote(selector) {
+        $('.textarea, #textarea').each(function() {
+            try {
+                $(this).summernote('destroy');
+            } catch (e) {
+                // Ignore errors if summernote was not initialized
+            }
+        });
         $(selector).summernote({
             placeholder: 'Contents',
             tabsize: 10,

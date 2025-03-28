@@ -4,7 +4,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Website\Admin\BannerController;
 use App\Http\Controllers\Website\Admin\GalleryController;
 use App\Http\Controllers\Website\Admin\NavigationController;
-use App\Http\Controllers\Website\Admin\PagesController;
 use App\Http\Controllers\Website\Admin\PostController;
 use App\Http\Controllers\Website\Admin\ProfileController;
 use App\Http\Controllers\Website\Admin\SEOController;
@@ -31,6 +30,8 @@ Route::controller(HomeController::class)->group(function () {
 Route::controller(ProfileController::class)->group(function () {
     Route::GET('/user/profile', 'index')->name('profile.index');
     Route::POST('/user/profile/update', 'update')->name('profile.update');
+    Route::POST('/user/update/logo', 'logo')->name('logo.update');
+    Route::POST('/user/update/favicon', 'favicon')->name('favicon.update');
 });
 
 //WEBSITE ADMIN
@@ -88,29 +89,13 @@ Route::prefix('website/admin')->controller(GalleryController::class)->group(func
     Route::delete('/gallery/delete/{id}', 'delete')->name('gallery.delete');
 });
 
-// Route::prefix('website/admin')->controller(PostController::class)->group(function () {
-//     Route::get('/post/index', 'index')->name('post.index');
-//     Route::post('/post/save', 'save')->name('post.save');
-//     Route::get('/post/edit/{id}', 'edit')->name('post.edit');
-//     Route::post('/post/update/{id}', 'update')->name('post.update');
-//     Route::post('/post/{status}/{id}', 'status')->name('post.status');
-//     Route::delete('/post/delete/{id}', 'delete')->name('post.delete');
-// });
-Route::prefix('website/admin')->controller(PagesController::class)->group(function () {
-    Route::get('/page/index', 'index')->name('page.index');
-    Route::get('/page/create', 'create')->name('page.create');
-    Route::post('/page/continue', 'continue')->name('page.continue');
-    Route::post('/page/save', 'save')->name('page.save');
-    Route::get('/page/edit/{id}', 'edit')->name('page.edit');
-    Route::post('/page/update/{id}', 'update')->name('page.update');
-    Route::post('/page/{status}/{id}', 'status')->name('page.status');
-    Route::delete('/page/delete/{id}', 'delete')->name('page.delete');
-    Route::get('/page/get/containers', 'getContainers')->name('page.get.containers');
-    Route::get('/page/get/components', 'getComponents')->name('page.get.components');
-    Route::get('/page/get/classes', 'getClasses')->name('page.get.classes');
-    Route::get('/page/get/styles', 'getComponentStyle')->name('page.get.componentStyle');
-    Route::get('/page/get/value', 'getValue')->name('page.get.value');
-
+Route::prefix('website/admin')->controller(PostController::class)->group(function () {
+    Route::get('/post/index', 'index')->name('post.index');
+    Route::post('/post/save', 'save')->name('post.save');
+    Route::get('/post/edit/{id}', 'edit')->name('post.edit');
+    Route::post('/post/update/{id}', 'update')->name('post.update');
+    Route::post('/post/{status}/{id}', 'status')->name('post.status');
+    Route::delete('/post/delete/{id}', 'delete')->name('post.delete');
 });
 
 Route::prefix('website/admin')->controller(WebsiteFilesController::class)->group(function () {

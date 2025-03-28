@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File;
 
 class ProfileController extends Controller
 {
@@ -64,6 +65,73 @@ class ProfileController extends Controller
             'password' => isset($data['password']) ? Hash::make($data['password']) : $user->password, // Retain old password if not updating
         ]);
         notyf()->success('Your request was processed successfully.');
+        return redirect()->back();
+    }
+
+    function logo(Request $request)
+    {
+        $validator = Validator::make(request()->all(), [
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,gif,svg,webp'],
+        ], [
+            'file.required' => 'File is a required field.',
+        ]);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->all() as $error) {
+                notyf()->warning($error);
+            }
+            return redirect()->back()->withInput();
+        }
+
+        $data = $validator->validated();
+        if (isset($data['file']) && !empty($data['file'])) {
+            $file = $data['file'];
+            $path = public_path('assets/default/'); // Ensure it's public_path for accessibility
+            $extension = $file->getClientOriginalExtension();
+            $newFileName = 'logo.' . $extension;
+
+            // Delete existing logo file irrespective of extension
+            $existingFiles = glob($path . 'logo.*');
+            foreach ($existingFiles as $existingFile) {
+                File::delete($existingFile);
+            }
+
+            // Move the new file
+            $file->move($path, $newFileName);
+        }
+        notyf()->success('Your request was processed successfully.');
+        return redirect()->back();
+    }
+
+    function favicon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => ['required', 'file', 'max:2048', 'mimes:ico'],
+        ], [
+            'file.required' => 'Favicon is required.',
+            'file.mimes' => 'Only .ico files are allowed.',
+        ]);
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->all() as $error) {
+                notyf()->warning($error);
+            }
+            return redirect()->back()->withInput();
+        }
+
+        $file = $request->file('file');
+        $path = public_path(''); // Ensure it's in the public directory
+        $newFileName = 'favicon.ico';
+
+        // Delete existing favicon
+        if (File::exists($path . $newFileName)) {
+            File::delete($path . $newFileName);
+        }
+
+        // Move the new favicon
+        $file->move($path, $newFileName);
+
+        notyf()->success('Favicon updated successfully.');
         return redirect()->back();
     }
 }

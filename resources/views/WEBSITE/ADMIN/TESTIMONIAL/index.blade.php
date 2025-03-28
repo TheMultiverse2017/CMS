@@ -59,7 +59,7 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="formFile" class="form-label">Images</label>
-                                        <input class="form-control" multiple name="file[]" type="file" id="formFile">
+                                        <input class="form-control" name="file[]" type="file" id="formFile">
                                     </div>
                                 </div>
                             </div>

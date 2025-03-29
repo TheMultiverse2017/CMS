@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\UserType;
 use App\Models\User;
+use App\Models\Website\Admin\Navigation;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'website@admin.com',
             'type' => UserType::WebsiteAdmin->value,
             'password' => Hash::make(123456789),
+        ]);
+
+        Navigation::create([
+            'menu' => 'Home',
         ]);
     }
 }

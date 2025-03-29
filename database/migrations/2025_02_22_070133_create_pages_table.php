@@ -16,9 +16,9 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable();
             $table->string('menu')->nullable();
-            $table->longText('content')->nullable();
             $table->text('metaTags')->nullable();
             $table->text('metaDesc')->nullable();
+            $table->longText('content')->nullable();
             $table->integer('status')->default(Status::ACTIVE->value);
             $table->softDeletes();
             $table->timestamps();

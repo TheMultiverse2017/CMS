@@ -156,7 +156,7 @@
                     </div> --}}
                     {{-- <ul class="list-group list-group-flush"> --}}
                     {{-- <li class="list-group-item">An item</li> --}}
-                    <a class="nav-link active p-3" href="{{ route('post.index') }}" data-bs-toggle="tooltip"
+                    <a class="nav-link active p-3" href="{{ route('page.create') }}" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Post">
                         <i class="bi bi-mailbox nav-icon"></i>
                     </a>

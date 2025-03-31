@@ -9,9 +9,7 @@
     <div class="container">
         <div class="row justify-content-center py-5">
             <div class="col-md-12 ">
-                <form method="POST" action="{{ route('page.continue') }}" enctype="multipart/form-data">
-                    @csrf
-                    @method('POST')
+                <form method="GET" action="{{ route('page.continue') }}" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="col-md-12 py-2">

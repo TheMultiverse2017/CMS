@@ -184,4 +184,36 @@ class PagesController extends Controller
         }
     }
 
+    public function rename(Request $request)
+    {
+        $file = $request->input('file');
+        $newfile = $request->input('newfile');
+
+        if (!$file || !$newfile) {
+            return response()->json(['success' => false, 'message' => 'Invalid file names.'], 400);
+        }
+
+        // Define base path (modify if needed)
+        $basePath = public_path('CustomWebPageBuilder/DefaultHtml/');
+
+        // Get sanitized file names
+        $oldFilePath = $basePath . DIRECTORY_SEPARATOR . basename($file) . '.html';
+        $newFilePath = $basePath . DIRECTORY_SEPARATOR . basename($newfile) . '.html';
+        // Check if old file exists
+        if (file_exists($oldFilePath)) {
+            if (rename($oldFilePath, $newFilePath)) {
+                return response()->json([
+                    'success' => true,
+                    'newfile' => $newfile,
+                    'message' => "File renamed successfully."
+                ]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Error renaming file.'], 500);
+            }
+        } else {
+            return response()->json(['success' => false, 'message' => "File does not exist: $oldFilePath"], 404);
+        }
+    }
+
+
 }

@@ -102,12 +102,17 @@ Route::prefix('website/admin')->controller(PostController::class)->group(functio
 Route::prefix('website/admin')->controller(PagesController::class)->group(function () {
     Route::get('/page/index', 'index')->name('page.index');
     Route::get('/page/create', 'create')->name('page.create');
-    Route::post('/page/continue', 'continue')->name('page.continue');
+    Route::get('/page/continue', 'continue')->name('page.continue');
     Route::post('/page/save', 'save')->name('page.save');
     Route::get('/page/edit/{id}', 'edit')->name('page.edit');
     Route::post('/page/update/{id}', 'update')->name('page.update');
     Route::post('/page/{status}/{id}', 'status')->name('page.status');
     Route::delete('/page/delete/{id}', 'delete')->name('page.delete');
+
+    Route::post('/editor/rename',  'rename')->name('editor.rename');
+    // Route::post('/editor/delete','delete')->name('editor.delete');
+    // Route::post('/editor/save-reusable','saveReusable')->name('editor.saveReusable');
+    // Route::post('/editor/oembed-proxy', 'oembedProxy')->name('editor.oembedProxy');
 });
 
 Route::prefix('website/admin')->controller(WebsiteFilesController::class)->group(function () {

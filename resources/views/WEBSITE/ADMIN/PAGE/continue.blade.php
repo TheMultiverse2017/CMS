@@ -19,9 +19,11 @@
                     </div>
             </div>
             </form> --}}
+            <div class="row d-flex justify-content-end fixed-bottom">
+                <div class="col-md-2 ">
+                    <button type="submit" style="width:100% " id="savePage" class="btn btn-primary">Save</button>
+                </div>
 
-            <div class="py-3">
-                <button type="submit" style="width:100% " id="savePage" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>

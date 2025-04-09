@@ -1,7 +1,19 @@
+<style>
+    #sectionTextarea{
+        width: 100%;
+        height: auto;
+    }
+</style>
 <div class="container">
-    {{-- <link href="{{ asset('CustomWebPageBuilder/css/style.css') }}" rel="stylesheet"> --}}
-    {{-- <link rel="icon" href ="{{ asset('CustomWebPageBuilder/favicon.ico') }}"> --}}
-    {{-- <iframe src="{{ asset('CustomWebPageBuilder/editor.html') }}" style="width: 100%; height: 100vh; border: none;"></iframe> --}}
-    {{-- @include('COMMON.INCLUDES.customeWebDesigner') --}}
-    <iframe src="{{ asset('CustomWebPageBuilderNew/editor.html') }}" style="width: 100%; height: 100vh; border: none;"></iframe>
+    <div id="sectionMainDiv">
+        <input class="form-control my-3" name="sectionTitle[]" type="text" id="sectionTitle">
+        <textarea class="form-control my-3" name="section[]" id="sectionTextarea" ></textarea>
+    </div>
+    <button class="btn btn-primary" id="btnAddNewSection" style="width: 100%">Add New section</button>
 </div>
+
+<script>
+    $('#btnAddNewSection').on('click',function(){
+        alert("sjdk");
+    })
+</script>

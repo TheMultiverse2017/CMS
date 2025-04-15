@@ -13,7 +13,7 @@
                             {{ __('Pages') }}
                         </div>
                         <div class="col-md-6 text-end">
-                            <a type="button" class="btn btn-primary col mx-2" href="{{route('page.create')}}" style="width:20em">
+                            <a type="button" target="_blank" class="btn btn-primary col mx-2" href="{{route('page.create')}}" style="width:20em">
                                 Create Page
                             </a>
                         </div>
@@ -82,7 +82,10 @@
                         data: 'menu',
                         name: 'menu'
                     },
-
+                    {
+                        data: 'contentTitle',
+                        name: 'contentTitle'
+                    },
                     {
                         data: 'updated_at.display',
                         name: 'updated_at'

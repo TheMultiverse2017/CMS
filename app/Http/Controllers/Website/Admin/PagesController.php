@@ -30,42 +30,46 @@ class PagesController extends Controller
     {
         $request = Request();
         if ($request->ajax()) {
-            $banners = Banner::select(['id', 'title', 'menu', 'updated_at', 'status'])->orderBy('updated_at', 'desc')->get();
-            return datatables()->of($banners)
+            $pages = Page::select(['id', 'title', 'menuId', 'contentTitle', 'updated_at', 'status'])->orderBy('updated_at', 'desc')->get();
+            return datatables()->of($pages)
                 ->addIndexColumn() // Adds SL No.
-                ->addColumn('updated_at', function ($banner) {
+                ->addColumn('updated_at', function ($page) {
                     return [
-                        'display' => $banner->updated_at->format('d M Y, h:i A'), // User-friendly format
-                        'timestamp' => $banner->updated_at->timestamp, // For sorting
+                        'display' => $page->updated_at->format('d M Y, h:i A'), // User-friendly format
+                        'timestamp' => $page->updated_at->timestamp, // For sorting
                     ];
                 })
-                ->addColumn('menu', function ($banner) {
-                    $menu = $banner->menu()->first();
+                ->addColumn('menu', function ($page) {
+                    $menu = $page->menu()->first();
                     return $menu->menu ?? null;
                 })
-                ->addColumn('status', function ($banner) {
+                ->addColumn('contentTitle', function ($page) {
+                    return $page->contentTitle ?? null;
+                })
+
+                ->addColumn('status', function ($page) {
                     $statusButton = '';
-                    if ($banner->status == 1) {
+                    if ($page->status == 1) {
                         // If status is 1, show "Deactivate" button
-                        $statusButton = '<button style="width:100%" data-status="disable" data-id="' . $banner->id . '" type="button" class="mx-2 col btn btn-danger btnDeActivate">Active - Deactivate</button>';
+                        $statusButton = '<button style="width:100%" data-status="disable" data-id="' . $page->id . '" type="button" class="mx-2 col btn btn-danger btnDeActivate">Active - Deactivate</button>';
                     } else {
                         // If status is 0, show "Activate" button
-                        $statusButton = '<button style="width:100%" data-status="enable" data-id="' . $banner->id . '" type="button" class="mx-2 col btn btn-success btnActivate">InActive - Activate</button>';
+                        $statusButton = '<button style="width:100%" data-status="enable" data-id="' . $page->id . '" type="button" class="mx-2 col btn btn-success btnActivate">InActive - Activate</button>';
                     }
                     return $statusButton;
                 })
-                ->addColumn('action', function ($banner) {
-                    return '<button style="width:100%" data-bs-toggle="modal" data-bs-target="#btnEditModal" class="btn btn-sm btn-primary action-btn btnEditModal" data-id="' . $banner->id . '" ><i class="bi bi-pencil-square nav-icon"></i></button>';
+                ->addColumn('action', function ($page) {
+                    return '<button style="width:100%" data-bs-toggle="modal" data-bs-target="#btnEditModal" class="btn btn-sm btn-primary action-btn btnEditModal" data-id="' . $page->id . '" ><i class="bi bi-pencil-square nav-icon"></i></button>';
                 })
-                ->addColumn('delete', function ($banner) {
-                    $deleteButton = '<button style="width:100%" data-bs-toggle="modal" data-bs-target="#btnDeleteModal" data-status="delete" data-id="' . $banner->id . '" type="button" class="mx-2 col btn btn-danger btnDeleteModal "><i class="bi bi-archive-fill nav-icon"></i></button>';
+                ->addColumn('delete', function ($page) {
+                    $deleteButton = '<button style="width:100%" data-bs-toggle="modal" data-bs-target="#btnDeleteModal" data-status="delete" data-id="' . $page->id . '" type="button" class="mx-2 col btn btn-danger btnDeleteModal "><i class="bi bi-archive-fill nav-icon"></i></button>';
                     return $deleteButton;
                 })
-                ->rawColumns(['menu', 'status', 'action', 'delete']) // Render HTML in these columns
+                ->rawColumns(['menu', 'status', 'contentTitle', 'action', 'delete']) // Render HTML in these columns
                 ->make(true);
         }
 
-        $title = 'Banner';
+        $title = 'Page';
         return view('WEBSITE.ADMIN.PAGE.index', compact('title'));
     }
 
@@ -90,6 +94,7 @@ class PagesController extends Controller
             'menu.string' => 'Menu must be a string.',
             'menu.max' => 'Menu cannot exceed 255 characters.',
         ]);
+
         if ($validator->fails()) {
             foreach ($validator->errors()->all() as $error) {
                 notyf()->warning($error);
@@ -98,11 +103,16 @@ class PagesController extends Controller
         }
 
         $data = $validator->validated();
-        $menu =  $data['menu'];
+        $menuId =  $data['menu'];
+        $menuName = '';
+        if(!empty($data['menu'])){
+            $menu = Navigation::where('id',$data['menu'])->first();
+            $menuName = $menu->menu ?? null;
+        }
         $pageTitle =  $data['title'] ?? null;
         $metaDesc =  $data['metaDesc'] ?? null;
         $metaTags =  $data['metaTags'] ?? null;
-        return view('WEBSITE.ADMIN.PAGE.continue', compact('title', 'menu', 'pageTitle', 'metaDesc', 'metaTags'));
+        return view('WEBSITE.ADMIN.PAGE.continue', compact('title', 'menuId', 'pageTitle', 'metaDesc', 'metaTags','menuName'));
     }
 
     public function edit($id)
@@ -116,6 +126,12 @@ class PagesController extends Controller
     {
         // Step 1: Validate request
         $validator = Validator::make($request->all(), [
+            'pageTitle' => 'required|string',
+            'menuId' => 'required|string',
+            'menuName' => 'required|string',
+            'metaTags' => 'required|string',
+            'metaDesc' => 'required|string',
+
             'sectionTitle' => 'required|array',
             'sectionTitle.*' => 'required|string|max:255',
             'section' => 'required|array',
@@ -133,6 +149,13 @@ class PagesController extends Controller
         }
 
         // Step 2: Retrieve inputs
+        $pageTitle = $request->input('pageTitle', '');
+        $menuId = $request->input('menuId', '');
+        $menuName = $request->input('menuName', '');
+        $metaTags = $request->input('metaTags', '');
+        $metaDesc = $request->input('metaDesc', '');
+
+
         $titles = $request->input('sectionTitle', []);
         $contents = $request->input('section', []);
         $sortOrders = $request->input('sectionSortOrder', []);
@@ -150,6 +173,8 @@ class PagesController extends Controller
 
         // Step 4: Save to database (optional - you can customize this)
         foreach ($sections as $section) {
+            // here each item of each section to be saved as individual entry
+
             // PageSection::create([
             //     'title' => $section['title'],
             //     'content' => $section['content'],

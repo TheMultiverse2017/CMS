@@ -15,7 +15,7 @@ class Page extends Model
 
     public function menu()
     {
-        return $this->belongsTo(Navigation::class, 'menu', 'id');
+        return $this->belongsTo(Navigation::class, 'menuId', 'id');
     }
 
     // public function websitefiles()

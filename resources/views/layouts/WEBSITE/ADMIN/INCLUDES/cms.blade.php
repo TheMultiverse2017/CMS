@@ -53,6 +53,12 @@
         const btnAdd = document.getElementById("btnAddNewSection");
         const btnSave = document.getElementById("savePage");
 
+        const pageTitle = '{{$pageTitle}}';
+        const menuId = '{{$menuId}}';
+        const menuName = '{{$menuName}}';
+        const metaTags = '{{$metaTags}}';
+        const metaDesc = '{{$metaDesc}}';
+
         // === INIT SUMMERNOTE ===
         $('textarea[name="section[]"]').each(function() {
             initSummernote(this);
@@ -96,10 +102,22 @@
             }
 
             const formData = {
+                pageTitle: '',
+                menuId: '',
+                menuName: '',
+                metaTags: '',
+                metaDesc: '',
+
                 sectionTitle: [],
                 section: [],
                 sectionSortOrder: [],
             };
+
+            formData.pageTitle = pageTitle || '' ;
+            formData.menuId = menuId || '' ;
+            formData.menuName= menuName || '' ;
+            formData.metaTags = metaTags || '' ;
+            formData.metaDesc = metaDesc || '' ;
 
             validationResult.data.forEach(section => {
                 formData.sectionTitle.push(section.title);

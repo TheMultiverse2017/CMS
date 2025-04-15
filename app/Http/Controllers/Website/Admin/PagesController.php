@@ -102,7 +102,7 @@ class PagesController extends Controller
         $pageTitle =  $data['title'] ?? null;
         $metaDesc =  $data['metaDesc'] ?? null;
         $metaTags =  $data['metaTags'] ?? null;
-        return view('WEBSITE.ADMIN.PAGE.continue', compact('title','menu','pageTitle','metaDesc','metaTags'));
+        return view('WEBSITE.ADMIN.PAGE.continue', compact('title', 'menu', 'pageTitle', 'metaDesc', 'metaTags'));
     }
 
     public function edit($id)
@@ -112,108 +112,57 @@ class PagesController extends Controller
         return view('WEBSITE.ADMIN.PAGE.edit', compact('title', 'post'));
     }
 
-    function getContainers()
+    public function save(Request $request)
     {
-        $request = Request();
-        if ($request->ajax()) {
-            $data = (new Helpers())->allContainers();
-            return response()->json(['success' => true, 'data' => $data]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Error.'], 500);
+        // Step 1: Validate request
+        $validator = Validator::make($request->all(), [
+            'sectionTitle' => 'required|array',
+            'sectionTitle.*' => 'required|string|max:255',
+            'section' => 'required|array',
+            'section.*' => 'required|string',
+            'sectionSortOrder' => 'required|array',
+            'sectionSortOrder.*' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors()
+            ], 422);
         }
+
+        // Step 2: Retrieve inputs
+        $titles = $request->input('sectionTitle', []);
+        $contents = $request->input('section', []);
+        $sortOrders = $request->input('sectionSortOrder', []);
+
+        $sections = [];
+
+        // Step 3: Combine and sanitize
+        for ($i = 0; $i < count($titles); $i++) {
+            $sections[] = [
+                'title' => $titles[$i] ?? '',
+                'content' => $contents[$i] ?? '',
+                'sort_order' => (int)($sortOrders[$i] ?? 0),
+            ];
+        }
+
+        // Step 4: Save to database (optional - you can customize this)
+        foreach ($sections as $section) {
+            // PageSection::create([
+            //     'title' => $section['title'],
+            //     'content' => $section['content'],
+            //     'sort_order' => $section['sort_order'],
+            //     // Add other required fields like 'page_id' if needed
+            // ]);
+        }
+
+        // Step 5: Return success
+        return response()->json([
+            'success' => true,
+            'message' => 'Page sections saved successfully!',
+            'data' => $sections
+        ]);
     }
-
-    function getComponents()
-    {
-        $request = Request();
-        if ($request->ajax()) {
-            $data = (new Helpers())->allComponents();
-            return response()->json(['success' => true, 'data' => $data]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Error.'], 500);
-        }
-    }
-
-    function getClasses()
-    {
-        $request = Request();
-        if ($request->ajax()) {
-            $data = (new Helpers())->allClasses();
-            return response()->json(['success' => true, 'data' => $data]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Error.'], 500);
-        }
-    }
-
-    function getComponentStyle()
-    {
-        $request = Request();
-        $key = request()->input('key', null);
-        if ($request->ajax()) {
-            if (!empty($key)) {
-                $allStyles = (new Helpers())->getComponentStyle($key);
-                $data = $allStyles;
-            }
-            return response()->json(['success' => true, 'data' => $data, 'key' => $key]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Error.'], 500);
-        }
-    }
-
-    function getValue()
-    {
-        $request = Request();
-        $key = request()->input('key', null);
-        if ($request->ajax()) {
-            if (!empty($key)) {
-                $allClasses = (new Helpers())->allClasses($key);
-                $allComponents = (new Helpers())->allComponents($key);
-                $allContainers = (new Helpers())->allContainers($key);
-                if ($allClasses != null) {
-                    $data = $allClasses;
-                } else if ($allComponents != null) {
-                    $data = $allComponents;
-                } else if ($allContainers != null) {
-                    $data = $allContainers;
-                }
-                $data = $allClasses ?? $allComponents ?? $allContainers;
-            }
-            return response()->json(['success' => true, 'data' => $data, 'key' => $key]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Error.'], 500);
-        }
-    }
-
-    public function rename(Request $request)
-    {
-        $file = $request->input('file');
-        $newfile = $request->input('newfile');
-
-        if (!$file || !$newfile) {
-            return response()->json(['success' => false, 'message' => 'Invalid file names.'], 400);
-        }
-
-        // Define base path (modify if needed)
-        $basePath = public_path('CustomWebPageBuilder/DefaultHtml/');
-
-        // Get sanitized file names
-        $oldFilePath = $basePath . DIRECTORY_SEPARATOR . basename($file) . '.html';
-        $newFilePath = $basePath . DIRECTORY_SEPARATOR . basename($newfile) . '.html';
-        // Check if old file exists
-        if (file_exists($oldFilePath)) {
-            if (rename($oldFilePath, $newFilePath)) {
-                return response()->json([
-                    'success' => true,
-                    'newfile' => $newfile,
-                    'message' => "File renamed successfully."
-                ]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Error renaming file.'], 500);
-            }
-        } else {
-            return response()->json(['success' => false, 'message' => "File does not exist: $oldFilePath"], 404);
-        }
-    }
-
-
 }

@@ -14,7 +14,7 @@
                         <div class="col-md-6">
                             <div class="col-md-12 py-2">
                                 <div class="mb-3">
-                                    <label for="menu" class="form-label">Menu</label>
+                                    <label for="menu" class="form-label">MENU</label>
                                     <select required class="form-select " aria-label="Default select example"
                                         name="menu" id="menu">
                                         <option selected value="">Open this select menu</option>
@@ -38,7 +38,7 @@
                             <div class="row py-2">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="title" class="form-label">Title</label>
+                                        <label for="title" class="form-label">PAGE TITLE</label>
                                         <input class="form-control" multiple name="title" type="text"
                                             id="title">
                                     </div>
@@ -46,8 +46,7 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-
-                            <div class="row py-2">
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="title" class="form-label">META DESCRIPTION</label>
@@ -55,10 +54,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row py-2">
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label for="title" class="form-label">META TAGS</label>
+                                        <label for="title" class="form-label">META TAGS / KEYWORDS</label>
                                         <textarea class="form-control" multiple name="metaTags"id="metaTags" cols="30" rows=""></textarea>
                                     </div>
                                 </div>

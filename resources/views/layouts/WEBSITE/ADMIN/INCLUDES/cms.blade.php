@@ -16,7 +16,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-
+<style>
+    .sectionClass:hover {
+        border: 2px solid red;
+    }
+</style>
 <div class="container">
     <div class="row">
         <div class="col-md-2" id="btnAddNewSectionDiv">
@@ -33,32 +37,46 @@
     </div>
     <div class="row my-5" id=htmlContent">
         @foreach ($getPageItems as $item)
-            @php
-                $checkFiles = json_decode($item->content, true);
-            @endphp
-            @if (isset($checkFiles['files']))
+            <section id="sectionId{{ $item->id }}" class="sectionClass my-3" data-id="{{ $item->id }}">
+                <div class="row justify-content-end mt-5" id="sectionIdDeleteBtnDiv{{ $item->id }}"
+                    data-deletebtndivid="{{ $item->id }}">
+                    <button style="width: 50px;" class="btn btn-danger sectionClassDeleteBtn"
+                        id="sectionIdDeleteBtn{{ $item->id }}" data-deletebtndid="{{ $item->id }}">
+                        <i class="bi bi-x-square-fill"></i>
+                    </button>
+                </div>
                 @php
-                    $templates = (new \App\Helpers\Helpers())->templates($item->elementType) ?? [];
-                    $websitefiles = $item->websitefiles()->get();
-                    $carouselItemsHtml = '';
-                    $class_active = true;
+                    $checkFiles = json_decode($item->content, true);
                 @endphp
-                @foreach ($websitefiles as $file)
+                @if (isset($checkFiles['files']))
                     @php
-                        $activeClass = $class_active ? 'active' : '';
-                        $class_active = false;
-                        $carouselItemsHtml .= '
-                        <div class="carousel-item '.$activeClass.'">
-                            <img src="'.URL::asset($file->filesrc).'" class="d-block w-100" alt="">
+                        $templates = (new \App\Helpers\Helpers())->templates($item->elementType) ?? [];
+                        $websitefiles = $item->websitefiles()->get();
+                        $carouselItemsHtml = '';
+                        $class_active = true;
+                    @endphp
+                    @foreach ($websitefiles as $file)
+                        @php
+                            $activeClass = $class_active ? 'active' : '';
+                            $class_active = false;
+                            $carouselItemsHtml .=
+                                '
+                        <div class="carousel-item ' .
+                                $activeClass .
+                                '">
+                            <img src="' .
+                                URL::asset($file->filesrc) .
+                                '" class="d-block w-100" alt="">
                         </div>
                         ';
-                        $finalCarouselHtml = str_replace('[[carousel_items]]', $carouselItemsHtml, $templates);
-                    @endphp
-                @endforeach
-                {!! $finalCarouselHtml !!}
-            @else
-                {!! $checkFiles['content'] !!}
-            @endif
+                            $finalCarouselHtml = str_replace('[[carousel_items]]', $carouselItemsHtml, $templates);
+                        @endphp
+                    @endforeach
+                    {!! $finalCarouselHtml !!}
+                @else
+                    {!! $checkFiles['content'] !!}
+                @endif
+            </section>
         @endforeach
     </div>
 </div>
@@ -218,6 +236,43 @@
                     }
                 });
             }
+        });
+
+
+        document.querySelectorAll('.sectionClassDeleteBtn').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent form submit or default behavior
+
+                var token = $('meta[name="csrf-token"]').attr('content');
+                var pageElementId = this.getAttribute('data-deletebtndid'); // Get pageElementId from clicked button
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    }
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('page.deletePageElement') }}",
+                    data: {
+                        pageElementId: pageElementId
+                        // You can also send elementType if needed
+                    },
+                    success: function(response) {
+                        let message = response.message;
+                        if (response.success) {
+                            notyf.success(message);
+                            window.location.reload();
+                        } else {
+                            notyf.error(message);
+                        }
+                    },
+                    error: function() {
+                        notyf.error('Something went wrong, please try again.');
+                    }
+                });
+            });
         });
     });
 

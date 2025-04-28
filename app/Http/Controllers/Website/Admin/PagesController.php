@@ -275,4 +275,25 @@ class PagesController extends Controller
         }
         return response()->json(['success' => true, 'message' => 'ELement Added']);
     }
+
+    function deletePageElement(Request $request){
+        $pageElementId = $request->pageElementId;
+        $getExistingPageElement = pageItems::where('id', $pageElementId)->first();
+        if ($getExistingPageElement) {
+            $elementType = $getExistingPageElement->elementType;
+            $getExistingPageElement->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => $elementType . ' removed'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Element not found'
+            ], 404);
+        }
+    }
 }
+
+

@@ -12,6 +12,7 @@ use App\Helpers\Helpers;
 use App\Models\Website\Admin\Banner;
 use App\Models\Website\Admin\Navigation;
 use App\Models\Website\Admin\Page;
+use App\Models\Website\Admin\pageItems;
 use App\Models\WebsiteFiles;
 use App\Traits\websiteFileTrait;
 use Illuminate\Support\Facades\Validator;
@@ -105,14 +106,25 @@ class PagesController extends Controller
         $data = $validator->validated();
         $menuId =  $data['menu'];
         $menuName = '';
-        if(!empty($data['menu'])){
-            $menu = Navigation::where('id',$data['menu'])->first();
+        $checkPageExist = Page::where('menuId', $menuId)->where('status', Status::ACTIVE->value)->first();
+        if ($checkPageExist) {
+            notyf()->warning('Page Exits Try Edit');
+            return redirect()->back()->withInput();
+        }
+
+        $getPageItems = pageItems::where('menuId', $menuId)
+            ->where('status', Status::ACTIVE->value)
+            ->orderBy('contentSortOrder', 'asc')  // ASCENDING (smallest to largest)
+            ->get() ?? [];
+
+        if (!empty($data['menu'])) {
+            $menu = Navigation::where('id', $data['menu'])->first();
             $menuName = $menu->menu ?? null;
         }
         $pageTitle =  $data['title'] ?? null;
         $metaDesc =  $data['metaDesc'] ?? null;
         $metaTags =  $data['metaTags'] ?? null;
-        return view('WEBSITE.ADMIN.PAGE.continue', compact('title', 'menuId', 'pageTitle', 'metaDesc', 'metaTags','menuName'));
+        return view('WEBSITE.ADMIN.PAGE.continue', compact('title', 'menuId', 'pageTitle', 'metaDesc', 'metaTags', 'menuName', 'getPageItems'));
     }
 
     public function edit($id)
@@ -189,5 +201,78 @@ class PagesController extends Controller
             'message' => 'Page sections saved successfully!',
             'data' => $sections
         ]);
+    }
+
+    function getTemplate(Request $request)
+    {
+        $type = $request->query('type'); // <-- check if expecting a param
+
+        if (!$type) {
+            return response()->json(['success' => false, 'message' => 'Missing template type'], 400);
+        }
+        $html = (new Helpers())->addNewSectionModalInputs($type) ?? [];
+        return response()->json(['success' => true, 'html' => $html ?? '']);
+    }
+
+
+    public function addPageElement(Request $request)
+    {
+        $formData = $request->all();
+        $elementTitle = $request->title;
+        $elementSortOrder = $request->sectionSortOrder;
+        $menuId = $request->menuId;
+        $elementType = $request->elementType;
+
+        if (!$elementTitle) {
+            return response()->json(['success' => false, 'message' => 'Element title is requiried'], 400);
+        }
+        if (!$elementSortOrder) {
+            return response()->json(['success' => false, 'message' => 'Element sort order is requiried'], 400);
+        }
+        if (!$menuId) {
+            return response()->json(['success' => false, 'message' => 'Menu issue fond please reload and try again'], 400);
+        }
+
+        $getExistingPageElements = pageItems::where('menuId', $menuId)->first();
+        if (!empty($getExistingPageElements)) {
+            if ($getExistingPageElements->contentSortOrder == $elementSortOrder) {
+                return response()->json(['success' => false, 'message' => 'sort order exist please change order'], 400);
+            }
+        }
+        // Exclude the specific fields you don't need
+        $excludedFields = ['title', 'sectionSortOrder', 'menuId'];
+        if($elementType == 'CONTENT'){
+            //add excluding like video and images and other files here if required, files usually covers all
+            $excludedFields = ['title', 'sectionSortOrder', 'menuId', 'files'];
+        }
+        // Filter out excluded fields from form data
+        $filteredData = array_diff_key($formData, array_flip($excludedFields));
+
+        // Optionally encode it to JSON
+        $jsonData = json_encode($filteredData);
+        $pageItems = pageItems::create(
+            [
+                'menuId' => $menuId,
+                'contentTitle' => $elementTitle,
+                'contentSortOrder' => $elementSortOrder,
+                'content' => $jsonData,
+                'elementType' => $elementType,
+            ]
+        );
+
+        if ($request->files && $elementType != 'CONTENT') {
+            foreach ($request->files as $key => $files) {
+                $this->saveFile(
+                    $files,
+                    $filesfor = WebsiteFilesFor::MAIN->value,
+                    $referenceId = $pageItems->id,
+                    $fileId = null,
+                    $linksrc = null,
+                    $status = 'CREATE',
+                    WebsiteFilesBelongsTo::PAGEELEMENT->value
+                );
+            }
+        }
+        return response()->json(['success' => true, 'message' => 'ELement Added']);
     }
 }

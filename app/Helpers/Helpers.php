@@ -50,7 +50,7 @@ class Helpers
             }
             $_SESSION['session_id'] = $session_id;
         }
-        $user_agent = json_encode(self::getDevice(),true) ?? null;
+        $user_agent = json_encode(self::getDevice(), true) ?? null;
         $ip_address = $request->ip() ?? null;
 
         $checkSessionExist = Analytics::where('session_id', $_SESSION['session_id'])->first();
@@ -122,29 +122,99 @@ class Helpers
         return response()->json($data);
     }
 
-    function getAllMenus() {
+    function getAllMenus()
+    {
         $allMenus = Navigation::get();
         return $allMenus ?? [];
     }
 
-    function getAllMainMenus() {
-        $allMainMenus = Navigation::where('reference_id',null)->get();
+    function getAllMainMenus()
+    {
+        $allMainMenus = Navigation::where('reference_id', null)->get();
         return $allMainMenus ?? [];
     }
 
-    function getAllSubMenus() {
-        $allSubMenus = Navigation::where('reference_id', '!=',null)->get();
+    function getAllSubMenus()
+    {
+        $allSubMenus = Navigation::where('reference_id', '!=', null)->get();
         return $allSubMenus ?? [];
     }
 
-    function getAllSubMenusForMain($menuId) {
+    function getAllSubMenusForMain($menuId)
+    {
         $allSubMenusFormMain = Navigation::where('reference_id', $menuId)->get();
         return $allSubMenusFormMain ?? [];
     }
-    function startSession(){
+    function startSession()
+    {
         if (!session()->isStarted()) {
             session()->start();
         }
     }
 
+    function addNewSection()
+    {
+        $items = [
+            'CONTENT' => [
+                'content' => '<textarea name="content" class="form-control my-3" row="30" id="contentTextarea" placeholder="Content"></textarea>',
+            ],
+            'CAROUSEL' => [
+                'image' => '<input type="file" name="files[]" multiple class="form-control my-3"  id="files" placeholder="Images"></input>',
+            ],
+
+        ];
+
+        return $items;
+    }
+    function addNewSectionModalInputs($key = null)
+    {
+        $allInputs = $this->addNewSection();
+        $inputKeysAndValues = [];
+
+        // Check if the provided key exists in the array
+        if (!empty($key) && array_key_exists($key, $allInputs)) {
+            $selectedInput = $allInputs[$key];  // Get the array of inputs for the given key
+
+            // Loop through the selected input array to get both keys and values
+            foreach ($selectedInput as $inputKey => $inputValue) {
+                // Add the key-value pair to the result array
+                $inputKeysAndValues[] = ['key' => $inputKey, 'value' => $inputValue];
+            }
+        }
+
+        // Return the array of keys and values, or an empty array if the key was not found
+        return $inputKeysAndValues ?? [];
+    }
+
+    function templates($key)
+    {
+        $templates = [
+            'CONTENT' => '<div class="row"></div>',
+
+            'CAROUSEL' => '
+            <div id="carouselExample" class="carousel slide">
+                <div class="carousel-inner">
+                    [[carousel_items]]
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            ',
+        ];
+
+
+        $selectedTemplate = '';
+
+        if (!empty($key)) {
+            $selectedTemplate = $templates[$key];
+        }
+
+        return $selectedTemplate ?? '';
+    }
 }

@@ -109,7 +109,8 @@ Route::prefix('website/admin')->controller(PagesController::class)->group(functi
     Route::post('/page/{status}/{id}', 'status')->name('page.status');
     Route::delete('/page/delete/{id}', 'delete')->name('page.delete');
 
-    Route::post('/editor/rename',  'rename')->name('editor.rename');
+    Route::get('/page/get/template', 'getTemplate')->name('page.getTemplate');
+    Route::post('/page/add/new/element', 'addPageElement')->name('page.addPageElement');
     // Route::post('/editor/delete','delete')->name('editor.delete');
     // Route::post('/editor/save-reusable','saveReusable')->name('editor.saveReusable');
     // Route::post('/editor/oembed-proxy', 'oembedProxy')->name('editor.oembedProxy');

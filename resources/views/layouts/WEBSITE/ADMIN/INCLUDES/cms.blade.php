@@ -1,293 +1,245 @@
-<style>
-    #sectionTextarea {
-        width: 100%;
-        height: auto;
-    }
+@php
+    $templateSelect = (new \App\Helpers\Helpers())->addNewSection() ?? [];
+@endphp
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous">
+</script>
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
 
-    .is-invalid {
-        border: 2px solid red !important;
-    }
-
-    .note-editor.is-invalid {
-        border: 2px solid red !important;
-        border-radius: 5px;
-    }
-
-    .note-modal {
-        z-index: 1055 !important;
-        /* Or higher depending on your modal stack */
-    }
-
-    .modal-backdrop {
-        z-index: 1050 !important;
-    }
-</style>
+{{-- BOOTSTART ICONS --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
 <div class="container">
-    <div id="sectionMainDiv">
-        <div class="row">
-            <div class="col-md-10" id="sectionTitleDiv">
-                <input class="form-control my-3" name="sectionTitle[]" type="text" placeholder="Section Title"
-                    id="sectionTitle">
+    <div class="row">
+        <div class="col-md-2" id="btnAddNewSectionDiv">
+            <select class="form-select" id="addNewSectionSelect" aria-label="Default select example">
+                <option value="" selected>Open this select menu</option>
+                @foreach ($templateSelect as $k => $v)
+                    <option value="{{ $k }}">{{ $k }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2" id="btnAddNewSectionBtnDiv">
+            <button class="btn btn-primary" id="btnAddNewSectionBtn">Add</button>
+        </div>
+    </div>
+    <div class="row my-5" id=htmlContent">
+        @foreach ($getPageItems as $item)
+            @php
+                $checkFiles = json_decode($item->content, true);
+            @endphp
+            @if (isset($checkFiles['files']))
+                @php
+                    $templates = (new \App\Helpers\Helpers())->templates($item->elementType) ?? [];
+                    $websitefiles = $item->websitefiles()->get();
+                    $carouselItemsHtml = '';
+                    $class_active = true;
+                @endphp
+                @foreach ($websitefiles as $file)
+                    @php
+                        $activeClass = $class_active ? 'active' : '';
+                        $class_active = false;
+                        $carouselItemsHtml .= '
+                        <div class="carousel-item '.$activeClass.'">
+                            <img src="'.URL::asset($file->filesrc).'" class="d-block w-100" alt="">
+                        </div>
+                        ';
+                        $finalCarouselHtml = str_replace('[[carousel_items]]', $carouselItemsHtml, $templates);
+                    @endphp
+                @endforeach
+                {!! $finalCarouselHtml !!}
+            @else
+                {!! $checkFiles['content'] !!}
+            @endif
+        @endforeach
+    </div>
+</div>
+{{-- Template Modal Start --}}
+<!-- Modal -->
+<div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="templateModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="col-md-2" id="sectionSortOrderDiv">
-                <select class="form-select my-3" id="sectionSortOrder" name="sectionSortOrder[]"
-                    aria-label="Default select example">
-                    <option value="">Select Sort Order</option>
-                    <option value="1" selected>1</option>
-                </select>
-            </div>
-            <div class="col-md-12" id="sectionTextareaDiv">
-                <textarea class="form-control my-3" name="section[]" id="sectionTextarea" placeholder="Content"></textarea>
+            <div class="modal-body">
+                <form enctype="multipart/form-data">
+
+                </form>
             </div>
         </div>
     </div>
-    <div class="offset-md-10" id="btnAddNewSectionDiv">
-        <button class="btn btn-primary mt-3" id="btnAddNewSection" style="width: 100%">Add New section</button>
-    </div>
 </div>
+{{-- Template Modal End --}}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const notyf = new Notyf();
-        const container = document.getElementById("sectionMainDiv");
-        const btnAdd = document.getElementById("btnAddNewSection");
-        const btnSave = document.getElementById("savePage");
+    const notyf = new Notyf();
+    var templateItem = '';
+    var message = '';
+    var templateModalFormContent = '';
+    var htmlContent = '';
+    var isValid = false;
 
-        const pageTitle = '{{$pageTitle}}';
-        const menuId = '{{$menuId}}';
-        const menuName = '{{$menuName}}';
-        const metaTags = '{{$metaTags}}';
-        const metaDesc = '{{$metaDesc}}';
+    var token = $('meta[name="csrf-token"]').attr('content');
 
-        // === INIT SUMMERNOTE ===
-        $('textarea[name="section[]"]').each(function() {
-            initSummernote(this);
-        });
-
-        btnAdd.addEventListener("click", function() {
-            const sections = container.querySelectorAll(".row");
-            const validationResult = validateSections(sections);
-
-            if (!validationResult.valid) return;
-
-            const nextSortOrder = getNextSortOrder(container);
-            const lastSection = sections[sections.length - 1];
-
-            const $lastTextarea = $(lastSection).find('textarea[name="section[]"]');
-            const savedContent = $lastTextarea.summernote('code');
-            $lastTextarea.val(savedContent); // Set the content to <textarea>
-            $lastTextarea.summernote('destroy');
-
-
-            const newSection = cloneAndResetSection(lastSection, nextSortOrder);
-            container.appendChild(newSection);
-
-            updateAllSelects(container, nextSortOrder);
-
-            // Reinitialize Summernote
-            $('textarea[name="section[]"]').each(function() {
-                if (!$(this).next('.note-editor').length) {
-                    initSummernote(this);
-                }
-            });
-        });
-
-        btnSave.addEventListener("click", function() {
-            const sections = container.querySelectorAll(".row");
-            const validationResult = validateSections(sections);
-
-            if (!validationResult.valid) {
-                notyf.error('Some fields are empty or invalid.');
-                return;
-            }
-
-            const formData = {
-                pageTitle: '',
-                menuId: '',
-                menuName: '',
-                metaTags: '',
-                metaDesc: '',
-
-                sectionTitle: [],
-                section: [],
-                sectionSortOrder: [],
-            };
-
-            formData.pageTitle = pageTitle || '' ;
-            formData.menuId = menuId || '' ;
-            formData.menuName= menuName || '' ;
-            formData.metaTags = metaTags || '' ;
-            formData.metaDesc = metaDesc || '' ;
-
-            validationResult.data.forEach(section => {
-                formData.sectionTitle.push(section.title);
-                formData.section.push(section.content);
-                formData.sectionSortOrder.push(section.sortOrder);
-            });
-
-            console.log("All fields are valid, sending AJAX");
-            var token = $('meta[name="csrf-token"]').attr('content');
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': token
-                }
-            });
-            $.ajax({
-                type: "POST",
-                url: "{{ route('page.save') }}",
-                data: formData,
-                success: function(response) {
-                    response.success ? notyf.success(response.message) : notyf.error(
-                        response.message);
-                },
-                error: function() {
-                    notyf.error('Something went wrong, please try again.');
-                }
-            });
-        });
-
-        // === VALIDATION FUNCTION ===
-        function validateSections(sections) {
-            let allValid = true;
-            const sortOrderMap = new Map();
-            const validData = [];
-
-            sections.forEach(section => {
-                const titleInput = section.querySelector("input[name='sectionTitle[]']");
-                const sortSelect = section.querySelector("select[name='sectionSortOrder[]']");
-                const textarea = section.querySelector("textarea[name='section[]']");
-                const $textarea = $(textarea);
-                const editor = $textarea.next('.note-editor');
-
-                // Cleanup previous validation
-                [titleInput, sortSelect].forEach(el => el?.classList.remove("is-invalid"));
-                editor.removeClass("is-invalid");
-
-                const title = titleInput?.value.trim() || '';
-                const sortOrder = sortSelect?.value || '';
-                const content = $textarea.summernote('isEmpty') ? '' : $textarea.summernote('code');
-
-                // Validation
-                if (!title) {
-                    titleInput.classList.add("is-invalid");
-                    allValid = false;
-                }
-
-                if (!sortOrder) {
-                    sortSelect.classList.add("is-invalid");
-                    allValid = false;
-                } else {
-                    if (!sortOrderMap.has(sortOrder)) {
-                        sortOrderMap.set(sortOrder, []);
-                    }
-                    sortOrderMap.get(sortOrder).push(sortSelect);
-                }
-
-                if (!content.trim()) {
-                    editor.addClass("is-invalid");
-                    allValid = false;
-                }
-
-                if (title && sortOrder && content.trim()) {
-                    validData.push({
-                        title,
-                        sortOrder,
-                        content
-                    });
-                }
-            });
-
-            // Check for duplicate sort orders
-            sortOrderMap.forEach(selects => {
-                if (selects.length > 1) {
-                    allValid = false;
-                    selects.forEach(sel => sel.classList.add("is-invalid"));
-                }
-            });
-
-            return {
-                valid: allValid,
-                data: validData
-            };
-        }
-
-        // === GET NEXT SORT ORDER ===
-        function getNextSortOrder(container) {
-            let max = 0;
-            container.querySelectorAll("select").forEach(select => {
-                Array.from(select.options).forEach(opt => {
-                    const val = parseInt(opt.value);
-                    if (!isNaN(val)) max = Math.max(max, val);
-                });
-            });
-            return max + 1;
-        }
-
-        // === CLONE & RESET SECTION ===
-        function cloneAndResetSection(section, sortOrder) {
-            const clone = section.cloneNode(true);
-            clone.querySelector("input[name='sectionTitle[]']").value = "";
-            const textarea = clone.querySelector("textarea[name='section[]']");
-            textarea.value = "";
-
-            const selectDiv = clone.querySelector("#sectionSortOrderDiv");
-            selectDiv.innerHTML = "";
-            const newSelect = createSelectOptions("", sortOrder, sortOrder);
-            newSelect.name = "sectionSortOrder[]";
-            selectDiv.appendChild(newSelect);
-
-            return clone;
-        }
-
-        // === UPDATE ALL SELECT DROPDOWNS ===
-        function updateAllSelects(container, maxOrder) {
-            container.querySelectorAll("select").forEach(select => {
-                const current = select.value;
-                const parent = select.parentNode;
-                const updatedSelect = createSelectOptions(current, maxOrder);
-                updatedSelect.name = "sectionSortOrder[]";
-                parent.replaceChild(updatedSelect, select);
-            });
-        }
-
-        // === CREATE SELECT OPTIONS ===
-        function createSelectOptions(currentValue, maxOrder, selectedValue = null) {
-            const select = document.createElement("select");
-            select.className = "form-select my-3";
-            select.setAttribute("aria-label", "Sort order");
-
-            const defaultOption = new Option("Select Sort Order", "");
-            select.appendChild(defaultOption);
-
-            for (let i = 1; i <= maxOrder; i++) {
-                const opt = new Option(i, i);
-                if ((selectedValue && i == selectedValue) || (!selectedValue && i == currentValue)) {
-                    opt.selected = true;
-                }
-                select.appendChild(opt);
-            }
-            return select;
-        }
-
-        // === SUMMERNOTE INIT ===
-        function initSummernote(element) {
-            $(element).summernote({
-                placeholder: 'Contents',
-                tabsize: 10,
-                height: 300,
-                focus: true,
-                disableDragAndDrop: true,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']],
-                ],
-            });
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': token
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('btnAddNewSectionBtn').addEventListener('click', function() {
+            templateItem = $("#addNewSectionSelect").val();
+            if (templateItem == '') {
+                message = 'Please select element to add.';
+                notyf.error(message);
+            } else {
+                getElementForModal(templateItem);
+            }
+        });
+    });
+
+    function getElementForModal(templateItem) {
+        htmlContent = '';
+        let modalElement = document.getElementById('templateModal');
+        let modalElementTitle = document.getElementById('templateModalLabel');
+        let modal = new bootstrap.Modal(modalElement);
+        modal.show();
+        modalElementTitle.textContent = 'Add ' + templateItem;
+        let sortOrder = {{ $item->contentSortOrder ?? 0 }} + 1; // Increment the sort order
+        let options = ''; // Variable to hold generated options
+
+        for (let i = 1; i <= sortOrder; i++) {
+            if (i === sortOrder) {
+                options += `<option value="${i}" selected>${i}</option>`;
+            } else {
+                options += `<option value="${i}">${i}</option>`;
+            }
+        }
+        $.ajax({
+            type: "GET",
+            url: "{{ route('page.getTemplate') }}",
+            data: {
+                type: templateItem
+            },
+            success: function(response) {
+                // Clear the form first
+                $('#templateModal form').empty();
+                $('#templateModal form').append(`
+                    <div class="row">
+                        <div class="col-md-10" id="sectionTitleDiv">
+                            <input class="form-control my-3" name="title" required type="text" placeholder="Title" id="title">
+                        </div>
+                        <div class="col-md-2" id="sectionSortOrderDiv">
+                            <select class="form-select my-3" id="sectionSortOrder" name="sectionSortOrder" aria-label="Default select example">
+                                <option value="">Select Sort Order</option>
+                               ${options}
+                            </select>
+                        </div>
+                    </div>
+                `);
+                // Loop through htmlContent array and append to form
+                response.html.forEach(function(item, index) {
+                    if (item.key === 'content') {
+                        // initialize summernote on the textarea after appending to DOM
+                        setTimeout(() => {
+                            $('#templateModal textarea').summernote();
+                        }, 300);
+                    }
+                    let fieldHtml = `
+                    <div class="mb-3">
+                        <label class="form-label">${item.key.charAt(0).toUpperCase() + item.key.slice(1)}</label>
+                        ${item.value}
+                    </div>`;
+                    $('#templateModal form').append(fieldHtml);
+                });
+                $('#templateModal form').append(`
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <button type="button" class="btn btn-primary" id="modalSubmit">Add</button>
+                            </div>
+                        </div>
+                    `);
+
+            },
+            error: function() {
+                notyf.error('Something went wrong, please try again.');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Delegate the click event to the parent modal container
+        document.querySelector('#templateModal').addEventListener('click', function(e) {
+            // Check if the clicked element is the submit button
+            if (e.target && e.target.id === 'modalSubmit') {
+                e.preventDefault(); // Prevent the default button action (form submit)
+                var token = $('meta[name="csrf-token"]').attr('content');
+                elementType = templateItem;
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    }
+                });
+                var menuId = '{{ $menuId }}';
+                const form = document.querySelector('#templateModal form');
+                const formData = new FormData(form); // Collect the form data
+                // Append the menuId to FormData
+                formData.append('menuId', menuId);
+                formData.append('elementType', elementType);
+                // Submit the form using AJAX
+                $.ajax({
+                    type: "post",
+                    url: "{{ route('page.addPageElement') }}",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        let message = response.message;
+                        if (response.success) {
+                            notyf.success(message);
+                            form.reset(); // Optionally reset the form after submission
+                            window.location.reload();
+                        } else {
+                            notyf.error(message);
+                        }
+                    },
+                    error: function() {
+                        notyf.error('Something went wrong, please try again.');
+                    }
+                });
+            }
+        });
+    });
+
+
+    // === SUMMERNOTE INIT ===
+    function initSummernote(element) {
+        $(element).summernote({
+            placeholder: 'Contents',
+            tabsize: 10,
+            height: 300,
+            focus: true,
+            disableDragAndDrop: true,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+            ],
+        });
+    }
 </script>

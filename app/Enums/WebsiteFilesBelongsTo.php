@@ -8,5 +8,6 @@ enum WebsiteFilesBelongsTo: int
     case GALLERY = 2;
     case TESTIMONIALS = 3;
     case POST = 4;
+    case PAGEELEMENT = 5;
 
 }

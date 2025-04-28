@@ -4,16 +4,7 @@
     <div class="container-fluid">
         <div class="row justify-content-center py-5">
             <div class="col-md-12 " id="continuePageId">
-                {{-- <form method="POST" action="{{ route('page.save') }}" enctype="multipart/form-data">
-                    @csrf
-                    @method('POST')--}}
                 @include('layouts.WEBSITE.ADMIN.INCLUDES.cms')
-
-                {{-- <div class="py-3">
-                        <button type="submit" style="width:100% " class="btn btn-primary">Save</button>
-                    </div>
-            </div>
-            </form> --}}
                 <div class="row d-flex justify-content-end fixed-bottom">
                     <div class="col-md-2 ">
                         <button type="submit" style="width:100% " id="savePage" class="btn btn-primary">Save</button>
